@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PropertiHub - Web & Admin v1.4</title>
+    <title>PropertiHub - Web & Admin v1.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Tambahkan library SheetJS untuk Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Tambahkan library Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style> 
         body { font-family: 'Inter', sans-serif; } 
-        /* Hide scrollbar for clean horizontal scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -52,10 +50,9 @@
 </head>
 <body class="bg-gray-200 text-gray-900 flex justify-center">
 
-    <!-- OVERLAY LOADING SINKRONISASI -->
     <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] hidden flex-col justify-center items-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
-        <p class="text-sm font-bold text-gray-700">Properti-HUB...</p>
+        <p class="text-sm font-bold text-gray-700">Menyinkronkan Database...</p>
     </div>
 
     <div id="app-container" class="w-full max-w-[430px] min-h-screen bg-gray-50 relative overflow-x-hidden sm:border-x sm:border-gray-300 shadow-2xl">
@@ -73,7 +70,6 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">
                         <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-6 w-6 text-white"></i></div>
-                        <!-- Secret Login: Klik pada Teks Logo untuk ke Admin Panel -->
                         <span onclick="navigate('screen-admin-login')" class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span></span>
                     </div>
                     <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
@@ -172,7 +168,6 @@
             <nav class="absolute w-full max-w-[430px] z-50 p-5 flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-5 w-5 text-white"></i></div>
-                    <!-- Secret Login: Klik pada Teks Logo untuk ke Admin Panel -->
                     <span id="front-agency-name" onclick="navigate('screen-admin-login')" class="font-bold text-xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span></span>
                 </div>
                 <div class="flex gap-2">
@@ -202,10 +197,8 @@
                 </div>
             </section>
 
-            <!-- Promos Container -->
             <section id="front-promos-container" class="py-2 px-5"></section>
 
-            <!-- Listings -->
             <section class="py-6 px-5">
                 <div class="flex justify-between items-end mb-4">
                     <div><h2 class="text-xl font-bold text-gray-900 mb-1">Listing Terbaru</h2><p class="text-xs text-gray-500">Rekomendasi terbaik untuk Anda</p></div>
@@ -223,6 +216,8 @@
                     <button onclick="navigate('screen-front-home')" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30"><i data-lucide="arrow-left" class="h-6 w-6"></i></button>
                     <div class="flex gap-2">
                         <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
+                        <!-- Tombol Share -->
+                        <button onclick="shareProperty()" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="share-2" class="h-5 w-5"></i></button>
                         <button class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30"><i data-lucide="heart" class="h-5 w-5"></i></button>
                     </div>
                 </div>
@@ -237,14 +232,7 @@
                 <div id="front-detail-promos" class="flex flex-wrap gap-2 my-3"></div>
 
                 <div class="flex items-center text-gray-500 text-sm mb-4"><i data-lucide="map-pin" class="h-4 w-4 mr-1 text-red-500"></i><span id="front-detail-location">Lokasi</span></div>
-                <h2 id="front-detail-price" class="text-3xl font-bold text-blue-600 mb-6">Harga</h2>
-
-                <!-- Fasilitas Umum -->
-                <div class="grid grid-cols-3 gap-2 border-t border-gray-100 pt-5">
-                    <div class="flex flex-col items-center p-2 bg-gray-50 rounded-xl"><i data-lucide="bed-double" class="h-6 w-6 text-gray-400 mb-1"></i><span class="text-sm font-bold">KT</span></div>
-                    <div class="flex flex-col items-center p-2 bg-gray-50 rounded-xl"><i data-lucide="bath" class="h-6 w-6 text-gray-400 mb-1"></i><span class="text-sm font-bold">KM</span></div>
-                    <div class="flex flex-col items-center p-2 bg-gray-50 rounded-xl"><i data-lucide="square" class="h-6 w-6 text-gray-400 mb-1"></i><span class="text-sm font-bold">LB</span></div>
-                </div>
+                <h2 id="front-detail-price" class="text-3xl font-bold text-blue-600 mb-2">Harga</h2>
             </div>
 
             <div class="mt-2 bg-white px-5 py-6 shadow-sm border-y border-gray-100">
@@ -253,8 +241,13 @@
                     <div class="flex justify-between items-center border-b border-gray-50 pb-3"><span class="text-sm text-gray-500">Uang Muka / DP</span><span id="front-detail-dp" class="text-sm font-semibold text-orange-600">-</span></div>
                     <div class="flex justify-between items-center border-b border-gray-50 pb-3"><span class="text-sm text-gray-500">Biaya Terima Kunci</span><span id="front-detail-allin" class="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg border border-green-100">-</span></div>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Spesifikasi Material</h3>
-                <p id="front-detail-specs" class="text-sm text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-wrap">-</p>
+
+                <!-- Deskripsi Properti -->
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Deskripsi Properti</h3>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <p id="front-detail-desc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap line-clamp-3">-</p>
+                    <button id="front-desc-toggle" onclick="toggleDesc()" class="text-blue-600 text-xs font-bold mt-2 hover:underline">Baca Selengkapnya</button>
+                </div>
             </div>
 
             <!-- Kalkulator KPR -->
@@ -312,7 +305,6 @@
             <button onclick="navigate('screen-front-home')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="home" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Beranda</span></button>
             <button onclick="navigate('screen-front-search')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="search" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Cari</span></button>
             <button onclick="navigate('screen-front-agents')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="contact" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Agen</span></button>
-            <!-- Tombol Admin telah disembunyikan agar tidak terlihat pengunjung -->
         </div>
 
 
@@ -320,7 +312,6 @@
         <!-- ADMIN SCREENS (DASHBOARD)                    -->
         <!-- ========================================== -->
 
-        <!-- SCREEN: ADMIN LOGIN -->
         <div id="screen-admin-login" class="hidden relative min-h-screen flex-col justify-center bg-gray-50 px-5">
             <button onclick="navigate('screen-front-home')" class="absolute top-10 left-5 p-2 bg-white rounded-full shadow-sm text-gray-600 border border-gray-100"><i data-lucide="arrow-left" class="h-6 w-6"></i></button>
             <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
@@ -352,7 +343,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN DASHBOARD -->
         <div id="screen-admin-dashboard" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -398,7 +388,6 @@
             </div>
         </div>
 
-        <!-- ADMIN BOTTOM NAV -->
         <div id="nav-admin" class="hidden fixed bottom-0 w-full max-w-[430px] bg-white border-t border-gray-100 z-40 flex justify-around items-center py-3 px-2 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
             <button onclick="navigate('screen-admin-dashboard')" class="flex flex-col items-center text-blue-600 w-14 nav-admin-btn"><i data-lucide="layout-dashboard" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Dashboard</span></button>
             <button onclick="navigate('screen-admin-listing')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-admin-btn"><i data-lucide="list" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Listing</span></button>
@@ -422,7 +411,6 @@
                     </div>
                 </div>
 
-                <!-- SECTION UPLOAD MASSAL -->
                 <div id="admin-bulk-upload-section" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-5 transition-all">
                     <div class="flex items-center gap-2 mb-2">
                         <i data-lucide="file-up" class="h-5 w-5 text-green-600"></i>
@@ -449,7 +437,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: FORM PROPERTY -->
         <div id="screen-admin-property-form" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-listing')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -514,8 +501,8 @@
                     </div>
 
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Spesifikasi Bangunan</label>
-                        <textarea id="form-specs" rows="3" placeholder="Pondasi batu kali, atap baja ringan..." class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium resize-none"></textarea>
+                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Deskripsi Lengkap (Info Detail)</label>
+                        <textarea id="form-description" rows="4" placeholder="Ceritakan detail menarik dan informasi lengkap mengenai properti ini..." class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium resize-none"></textarea>
                     </div>
 
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
@@ -525,9 +512,7 @@
 
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">URL Gambar</label>
-                        <div id="form-image-container" class="flex flex-col gap-2">
-                            <!-- Input URL Gambar akan di-generate otomatis -->
-                        </div>
+                        <div id="form-image-container" class="flex flex-col gap-2"></div>
                         <button onclick="addImageInput()" class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-xs font-bold mt-2 border border-blue-100 hover:bg-blue-100 transition flex justify-center items-center gap-1">
                             <i data-lucide="plus" class="h-4 w-4"></i> Tambah Gambar
                         </button>
@@ -538,7 +523,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN PROPERTY DETAIL PREVIEW -->
         <div id="screen-admin-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
             <div class="relative h-[300px] w-full">
                 <img id="admin-detail-image" src="" class="w-full h-full object-cover" />
@@ -570,12 +554,11 @@
             </div>
 
             <div class="mt-2 bg-white px-5 py-6 shadow-sm border-y border-gray-100 flex-1">
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Spesifikasi Material</h3>
-                <p id="admin-detail-specs" class="text-sm text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-wrap">-</p>
+                <h3 class="text-lg font-bold text-gray-900 mt-2 mb-2">Deskripsi Properti</h3>
+                <p id="admin-detail-desc" class="text-sm text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-wrap">-</p>
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN VISITORS (LEADS) -->
         <div id="screen-admin-visitors" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -592,7 +575,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN AGENTS -->
         <div id="screen-admin-agents" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -609,7 +591,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: FORM AGENT -->
         <div id="screen-admin-agent-form" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-agents')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -638,7 +619,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN PROMOS -->
         <div id="screen-admin-promos" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -655,7 +635,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: FORM PROMO -->
         <div id="screen-admin-promo-form" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-promos')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -680,7 +659,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN SETTINGS -->
         <div id="screen-admin-settings" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -719,7 +697,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN LOCATIONS -->
         <div id="screen-admin-locations" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -736,7 +713,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: FORM LOCATION -->
         <div id="screen-admin-location-form" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-locations')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -757,7 +733,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN AGENCY PROFILE -->
         <div id="screen-admin-agency" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-settings')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -790,7 +765,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: ADMIN USERS -->
         <div id="screen-admin-users" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -807,7 +781,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: FORM USER -->
         <div id="screen-admin-user-form" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
                 <button onclick="navigate('screen-admin-users')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
@@ -841,11 +814,7 @@
 
     </div>
 
-    <!-- Script Logika -->
     <script>
-        // ==========================================
-        // TEMA DARK MODE
-        // ==========================================
         function initTheme() {
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -870,7 +839,6 @@
             let isDark = document.documentElement.classList.contains('dark');
             document.querySelectorAll('.theme-icon').forEach(icon => {
                 if(icon.tagName.toLowerCase() === 'svg') {
-                    // Recreate i tag if lucide already processed it
                     let i = document.createElement('i');
                     let classNames = icon.getAttribute('class').replace('lucide-moon', '').replace('lucide-sun', '').replace('lucide', '').trim();
                     i.className = classNames;
@@ -884,15 +852,8 @@
             lucide.createIcons();
         }
 
-        // ==========================================
-        // 1. PENGATURAN DATABASE (SUPABASE)
-        // ==========================================
-        
-        // 1. Masukkan URL dan ANON KEY dari Project Supabase Anda
         const SUPABASE_URL = 'https://mcyjktlgnihxejszmdml.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jeWprdGxnbmloeGVqc3ptZG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTI0NjUsImV4cCI6MjA5NDMyODQ2NX0.bTtEMqq-v5NAC__i1xJDSBdpOK5b1skramN1etpNL1s';
-        
-        // Inisialisasi Supabase Client
+        const SUPABASE_KEY = ''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jeWprdGxnbmloeGVqc3ptZG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTI0NjUsImV4cCI6MjA5NDMyODQ2NX0.bTtEMqq-v5NAC__i1xJDSBdpOK5b1skramN1etpNL1s'';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const DB_KEY = 'PH_DB';
@@ -900,13 +861,11 @@
 
         function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
 
-        // Fungsi format angka ke Rupiah
         function formatRupiah(num) {
             let rounded = Math.round(num);
             return 'Rp. ' + new Intl.NumberFormat('id-ID').format(rounded);
         }
 
-        // Fungsi Auto-format Input Rupiah saat mengetik
         function autoFormatRupiah(el) {
             let val = el.value.replace(/[^0-9]/g, '');
             if (!val) {
@@ -934,9 +893,9 @@
 
                     if (!appDB.PROPERTIES || appDB.PROPERTIES.length === 0) {
                         appDB.PROPERTIES = [
-                            { id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City, Tangerang', type: 'Rumah', buildingType: 'Tipe 60/90', specs: 'Bata merah, atap baja ringan', promoIds: [1], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] },
-                            { id: 2, title: 'Apartemen Sudirman Suites', price: 'Rp. 1.500.000.000', dp: 'Rp. 150.000.000', allInCost: 'Rp. 35.000.000', location: 'Sudirman, Jakarta Pusat', type: 'Apartemen', buildingType: '2BR', specs: 'Full furnished, lantai granit, view city', promoIds: [], image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80'] },
-                            { id: 3, title: 'Townhouse Asri Kemang', price: 'Rp. 4.500.000.000', dp: 'Rp. 450.000.000', allInCost: 'Rp. 50.000.000', location: 'Kemang, Jakarta Selatan', type: 'Rumah', buildingType: 'Townhouse 3 Lantai', specs: 'Bata merah ekspos, kolam renang pribadi', promoIds: [1], image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80'] }
+                            { id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City, Tangerang', type: 'Rumah', buildingType: 'Tipe 60/90', description: 'Rumah minimalis 2 lantai yang sangat nyaman untuk keluarga modern. Terletak di jantung kota dengan akses langsung menuju stasiun kereta dan pintu tol, menjadikan hunian ini impian banyak orang.', promoIds: [1], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] },
+                            { id: 2, title: 'Apartemen Sudirman Suites', price: 'Rp. 1.500.000.000', dp: 'Rp. 150.000.000', allInCost: 'Rp. 35.000.000', location: 'Sudirman, Jakarta Pusat', type: 'Apartemen', buildingType: '2BR', description: 'Apartemen premium di pusat bisnis kota, menawarkan gaya hidup dinamis.', promoIds: [], image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80'] },
+                            { id: 3, title: 'Townhouse Asri Kemang', price: 'Rp. 4.500.000.000', dp: 'Rp. 450.000.000', allInCost: 'Rp. 50.000.000', location: 'Kemang, Jakarta Selatan', type: 'Rumah', buildingType: 'Townhouse 3 Lantai', description: 'Townhouse asri dengan konsep resort yang menyatu dengan alam.', promoIds: [1], image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80'] }
                         ];
                         isModified = true;
                     }
@@ -977,10 +936,9 @@
 
                     if (!dbStr || isModified) localStorage.setItem(DB_KEY, JSON.stringify(appDB));
                 } else {
-                    // AMBIL DATA DARI SUPABASE CLOUD
                     const { data, error } = await supabaseClient.from('ph_data').select('data').eq('id', 1).single();
                     
-                    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = Baris belum ada (Bisa diabaikan)
+                    if (error && error.code !== 'PGRST116') throw error;
                     
                     if(data && data.data && data.data.PROPERTIES) {
                         appDB = data.data;
@@ -988,7 +946,6 @@
                         if(!appDB.AGENCY) appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: '-', logo: '', kprInterest: 5.5 };
                         localStorage.setItem(DB_KEY, JSON.stringify(appDB)); 
                     } else {
-                        // Jika Supabase kosong (baru pertama kali dipasang), sinkronkan data default ke Cloud
                         console.log("Database Supabase kosong, menyinkronkan data default...");
                         let dbStr = localStorage.getItem(DB_KEY);
                         if(dbStr) appDB = JSON.parse(dbStr);
@@ -997,14 +954,12 @@
                             appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: '-', logo: '', kprInterest: 5.5 };
                         }
                         
-                        // Upsert pertama kali ke Supabase
                         await supabaseClient.from('ph_data').upsert({ id: 1, data: appDB });
                         localStorage.setItem(DB_KEY, JSON.stringify(appDB));
                     }
                 }
             } catch (error) {
                 console.error("Gagal terhubung ke Supabase:", error);
-                // Fallback ke penyimpanan lokal jika internet/Supabase bermasalah
                 let dbStr = localStorage.getItem(DB_KEY);
                 if (dbStr) appDB = JSON.parse(dbStr);
             }
@@ -1020,7 +975,6 @@
 
             showLoading(true);
             
-            // Simpan secara asinkron ke Supabase Cloud
             supabaseClient.from('ph_data').upsert({ id: 1, data: appDB })
                 .then(({error}) => {
                     showLoading(false);
@@ -1032,10 +986,6 @@
                 });
         }
 
-
-        // ==========================================
-        // 2. LOGIKA NAVIGASI (ROUTER)
-        // ==========================================
         let currentUser = null;
         let editingPropertyId = null;
         let editingAgentId = null;
@@ -1062,7 +1012,6 @@
             document.getElementById(targetScreen).classList.remove('hidden');
             document.getElementById(targetScreen).classList.add('block');
             
-            // Pengaturan Bottom Navbar (Pisahkan Nav Web vs Admin)
             if (targetScreen.startsWith('screen-front-')) {
                 document.getElementById('nav-front').classList.remove('hidden');
                 document.getElementById('nav-admin').classList.add('hidden');
@@ -1074,12 +1023,10 @@
                 document.getElementById('nav-front').classList.remove('flex');
                 document.getElementById('nav-admin').classList.add('flex');
             } else {
-                // Sembunyikan keduanya di halaman form admin / login
                 document.getElementById('nav-front').classList.add('hidden');
                 document.getElementById('nav-admin').classList.add('hidden');
             }
 
-            // Panggilan Render spesifik layar
             if (targetScreen === 'screen-front-home') {
                 renderFrontHome();
             } else if (targetScreen === 'screen-front-search') {
@@ -1105,13 +1052,11 @@
                 renderAdminLocations();
             }
 
-            // Update Active State untuk Navbar Frontend
             document.querySelectorAll('.nav-front-btn').forEach(btn => btn.classList.remove('text-blue-600'));
             if(targetScreen === 'screen-front-home') document.querySelectorAll('.nav-front-btn')[0].classList.add('text-blue-600');
             if(targetScreen === 'screen-front-search') document.querySelectorAll('.nav-front-btn')[1].classList.add('text-blue-600');
             if(targetScreen === 'screen-front-agents') document.querySelectorAll('.nav-front-btn')[2].classList.add('text-blue-600');
             
-            // Update Active State untuk Navbar Admin
             document.querySelectorAll('.nav-admin-btn').forEach(btn => btn.classList.remove('text-blue-600'));
             if(targetScreen === 'screen-admin-dashboard') document.querySelectorAll('.nav-admin-btn')[0].classList.add('text-blue-600');
             if(targetScreen === 'screen-admin-listing') document.querySelectorAll('.nav-admin-btn')[1].classList.add('text-blue-600');
@@ -1121,19 +1066,13 @@
             window.scrollTo(0,0);
         }
 
-        // ==========================================
-        // 3. LOGIKA FRONTEND (HALAMAN PENGUNJUNG)
-        // ==========================================
-
         function renderFrontHome() {
             let db = getDB();
-            // Header Agency Name
             let agencyName = db.AGENCY?.name || 'PropertiHub';
             let nameParts = agencyName.split(' ');
             let formattedName = `${nameParts[0] || 'Properti'}<span class="text-orange-400">${nameParts[1] || 'Hub'}</span>`;
             document.getElementById('front-agency-name').innerHTML = formattedName;
 
-            // Render Promos
             let promosContainer = document.getElementById('front-promos-container');
             promosContainer.innerHTML = '';
             if (db.PROMOS.length > 0) {
@@ -1149,7 +1088,6 @@
                     </div>`;
             }
 
-            // Render Listings
             let propContainer = document.getElementById('front-properties-container');
             propContainer.innerHTML = '';
             db.PROPERTIES.forEach(prop => {
@@ -1168,8 +1106,7 @@
                         <p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p>
                         <div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div>
                         
-                        <!-- Rincian Biaya & Tipe (New Design) -->
-                        <div class="grid grid-cols-2 gap-2 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
                             <div>
                                 <span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span>
                                 <span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span>
@@ -1182,12 +1119,6 @@
                                 <span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Tipe Ukuran</span>
                                 <span class="text-xs font-semibold text-gray-800">${prop.buildingType || '-'}</span>
                             </div>
-                        </div>
-
-                        <!-- Spesifikasi Material -->
-                        <div>
-                            <span class="block text-[10px] font-bold text-gray-700 mb-1 flex items-center gap-1"><i data-lucide="hammer" class="h-3 w-3 text-gray-400"></i> Spesifikasi Material:</span>
-                            <p class="text-[11px] text-gray-500 leading-relaxed line-clamp-2 bg-white/50">${prop.specs || 'Tidak ada detail spesifikasi yang diisi.'}</p>
                         </div>
                     </div>
                 </div>`;
@@ -1211,9 +1142,15 @@
             document.getElementById('front-detail-location').innerText = prop.location;
             document.getElementById('front-detail-dp').innerText = prop.dp || '-';
             document.getElementById('front-detail-allin').innerText = prop.allInCost || '-';
-            document.getElementById('front-detail-specs').innerText = prop.specs || 'Tidak ada detail.';
+            
+            document.getElementById('front-detail-desc').innerText = prop.description || 'Tidak ada deskripsi.';
+            let descEl = document.getElementById('front-detail-desc');
+            let btnEl = document.getElementById('front-desc-toggle');
+            descEl.classList.add('line-clamp-3');
+            btnEl.innerText = 'Baca Selengkapnya';
+            if (!prop.description) btnEl.style.display = 'none';
+            else btnEl.style.display = 'inline-block';
 
-            // Render Promo Tags
             let promosContainer = document.getElementById('front-detail-promos');
             promosContainer.innerHTML = '';
             if (prop.promoIds && prop.promoIds.length > 0) {
@@ -1223,18 +1160,16 @@
                 });
             }
 
-            // Set Data untuk Kalkulator KPR
             let numericPrice = 1000000000;
             if(prop.price) {
                 let parsed = parseInt(prop.price.replace(/[^0-9]/g, ''), 10);
                 if(parsed) numericPrice = parsed;
             }
             document.getElementById('kpr-base-price').value = numericPrice;
-            document.getElementById('kpr-dp-range').value = 20; // reset
-            document.getElementById('kpr-year-range').value = 15; // reset
-            updateKPR(); // hitung cicilan
+            document.getElementById('kpr-dp-range').value = 20;
+            document.getElementById('kpr-year-range').value = 15;
+            updateKPR();
 
-            // Render Agent Info & Link WA
             let agent = db.AGENTS.length > 0 ? db.AGENTS[0] : { name: 'Agen Properti', role: 'Support', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80'};
             document.getElementById('front-agent-image').src = agent.image;
             document.getElementById('front-agent-name').innerText = agent.name;
@@ -1246,6 +1181,42 @@
             document.getElementById('front-btn-call').href = `tel:${cleanPhone}`;
 
             lucide.createIcons();
+        }
+
+        function shareProperty() {
+            let db = getDB();
+            let prop = db.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId));
+            if(!prop) return;
+
+            let shareTitle = prop.title;
+            let shareText = `*Ada properti menarik nih!*\n\n*${prop.title}*\n📍 ${prop.location}\n💰 Harga: ${prop.price || 'Menyusul'}\n\nYuk, cek selengkapnya!`;
+            let shareUrl = window.location.origin + window.location.pathname;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
+                    alert('Info properti berhasil disalin ke clipboard! Silakan paste (tempel) di sosial media Anda.');
+                }).catch(err => {
+                    console.error('Gagal menyalin:', err);
+                });
+            }
+        }
+
+        function toggleDesc() {
+            let desc = document.getElementById('front-detail-desc');
+            let btn = document.getElementById('front-desc-toggle');
+            if (desc.classList.contains('line-clamp-3')) {
+                desc.classList.remove('line-clamp-3');
+                btn.innerText = 'Tutup';
+            } else {
+                desc.classList.add('line-clamp-3');
+                btn.innerText = 'Baca Selengkapnya';
+            }
         }
 
         function renderFrontAgents() {
@@ -1278,7 +1249,6 @@
             lucide.createIcons();
         }
 
-        // Fungsi Kalkulator KPR (Realtime On Input)
         function updateKPR() {
             let dpPercent = parseFloat(document.getElementById('kpr-dp-range').value);
             let years = parseInt(document.getElementById('kpr-year-range').value);
@@ -1289,7 +1259,7 @@
 
             let dp = numericPrice * (dpPercent / 100);
             let principal = numericPrice - dp;
-            let monthlyInterest = (interestRate / 100) / 12; // Bunga Dinamis
+            let monthlyInterest = (interestRate / 100) / 12;
             let totalMonths = years * 12;
             let monthlyPayment = principal * (monthlyInterest * Math.pow(1 + monthlyInterest, totalMonths)) / (Math.pow(1 + monthlyInterest, totalMonths) - 1);
 
@@ -1298,7 +1268,6 @@
             document.getElementById('kpr-result-text').innerHTML = `${formatRupiah(monthlyPayment)}<span class="text-xs text-white font-normal">/bln</span>`;
         }
 
-        // Fungsi Memuat Pilihan Promo saat Buka Tab Cari
         function initFrontSearch() {
             let db = getDB();
             let promoSelect = document.getElementById('front-lead-promo');
@@ -1311,7 +1280,6 @@
             populateLocationDropdowns('front-lead-city', 'front-lead-district');
         }
 
-        // Fungsi Memuat Dinamis Kota dan Kecamatan
         function populateLocationDropdowns(citySelectId, districtSelectId, selectedCity = '', selectedDistrict = '') {
             let db = getDB();
             let citySelect = document.getElementById(citySelectId);
@@ -1350,12 +1318,10 @@
             if (selectedDistrict && !distFound) districtSelect.innerHTML += `<option value="${selectedDistrict}" selected>${selectedDistrict} (Data Lama)</option>`;
         }
 
-        // Fungsi Submit Pencarian (Simpan Leads)
         function handleFrontSearch() {
             let type = document.getElementById('front-lead-type').value;
             let building = document.getElementById('front-lead-building').value;
             
-            // Gabungkan Kota & Kecamatan
             let city = document.getElementById('front-lead-city').value.trim();
             let district = document.getElementById('front-lead-district').value.trim();
             let finalLocation = 'Bebas / Menyesuaikan';
@@ -1388,7 +1354,6 @@
             db.VISITORS.unshift(newLead);
             saveDB(db);
             
-            // Clear Form
             document.getElementById('front-lead-name').value = '';
             document.getElementById('front-lead-phone').value = '';
             document.getElementById('front-lead-city').value = '';
@@ -1399,16 +1364,11 @@
             navigate('screen-front-home');
         }
 
-        // ==========================================
-        // 4. LOGIKA ADMIN (DASHBOARD)
-        // ==========================================
-
         function handleAdminLogin() {
             let userVal = document.getElementById('login-user').value;
             let passVal = document.getElementById('login-pass').value;
             let db = getDB();
             
-            // PERBAIKAN: Gunakan String() dan trim() untuk mencegah error tipe data (Angka vs Teks) dari Google Sheets
             let user = db.USERS.find(u => 
                 String(u.username).trim() === String(userVal).trim() && 
                 String(u.password).trim() === String(passVal).trim()
@@ -1456,20 +1416,17 @@
 
         function logoutAdmin() { currentUser = null; navigate('screen-admin-login'); }
 
-        // --- CRUD PROPERTI ADMIN ---
         function toggleBulkUpload() {
             const section = document.getElementById('admin-bulk-upload-section');
             section.classList.toggle('hidden');
         }
 
         function downloadBulkTemplate() {
-            // Data Template untuk Excel
             const data = [
-                ["Judul Properti", "Harga Asli", "DP", "Biaya Terima Kunci", "Kota/Kabupaten", "Kecamatan/Area", "Tipe Properti(Rumah/Apartemen/dll)", "Tipe Ukuran Bangunan", "Spesifikasi Material", "URL Gambar"],
-                ["Cluster Modern Indah", "Rp. 1.000.000.000", "Rp. 100.000.000", "Rp. 25.000.000", "Tangerang", "BSD City", "Rumah", "Tipe 36/60", "Bata merah, atap baja ringan, carport 1 mobil", "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80"]
+                ["Judul Properti", "Harga Asli", "DP", "Biaya Terima Kunci", "Kota/Kabupaten", "Kecamatan/Area", "Tipe Properti(Rumah/Apartemen/dll)", "Tipe Ukuran Bangunan", "URL Gambar", "Deskripsi Lengkap"],
+                ["Cluster Modern Indah", "Rp. 1.000.000.000", "Rp. 100.000.000", "Rp. 25.000.000", "Tangerang", "BSD City", "Rumah", "Tipe 36/60", "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80", "Rumah modern minimalis yang cocok untuk keluarga milenial, dekat dengan stasiun KRL dan pusat perbelanjaan."]
             ];
             
-            // Konversi ke Worksheet dan simpan sebagai .xlsx
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Template_Properti");
@@ -1484,17 +1441,12 @@
             showLoading(true);
             const reader = new FileReader();
             
-            // Gunakan readAsArrayBuffer untuk file biner Excel
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
-                    
-                    // Ambil Sheet pertama
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // Konversi Sheet ke JSON (Array of Arrays)
                     const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
                     if(rows.length < 2) {
@@ -1505,14 +1457,10 @@
                     const db = getDB();
                     let addedCount = 0;
 
-                    // Loop data, skip baris pertama (Header)
                     for (let i = 1; i < rows.length; i++) {
                         const values = rows[i];
-                        
-                        // Cek apakah baris valid dan punya judul
                         if (!values || values.length === 0 || !values[0]) continue;
 
-                        // Ambil nilai dari kolom (index 0 - 9) dengan validasi string
                         const title = values[0] ? String(values[0]).trim() : '';
                         const price = values[1] ? String(values[1]).trim() : '';
                         const dp = values[2] ? String(values[2]).trim() : '';
@@ -1521,17 +1469,16 @@
                         const district = values[5] ? String(values[5]).trim() : '';
                         const type = values[6] ? String(values[6]).trim() : 'Rumah';
                         const buildingType = values[7] ? String(values[7]).trim() : '';
-                        const specs = values[8] ? String(values[8]).trim() : '-';
-                        const image = values[9] ? String(values[9]).trim() : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
+                        const image = values[8] ? String(values[8]).trim() : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
+                        const desc = values[9] ? String(values[9]).trim() : '';
 
-                        // Gabungkan lokasi untuk display default
                         let finalLocation = city;
                         if (city && district) finalLocation = `${district}, ${city}`;
                         else if (district) finalLocation = district;
                         if (!finalLocation) finalLocation = 'Lokasi Belum Ditentukan';
 
                         db.PROPERTIES.unshift({
-                            id: Date.now() + i, // Hindari bentrok ID
+                            id: Date.now() + i,
                             title: title,
                             price: price,
                             dp: dp,
@@ -1539,7 +1486,7 @@
                             location: finalLocation,
                             type: type,
                             buildingType: buildingType,
-                            specs: specs,
+                            description: desc,
                             promoIds: [],
                             image: image,
                             images: [image]
@@ -1551,9 +1498,9 @@
                     if(addedCount > 0) {
                         saveDB(db);
                         alert(`Sukses! ${addedCount} properti berhasil ditambahkan secara massal.`);
-                        fileInput.value = ''; // Reset input file
-                        toggleBulkUpload(); // Tutup tab upload
-                        renderAdminProperties(); // Refresh list
+                        fileInput.value = '';
+                        toggleBulkUpload();
+                        renderAdminProperties();
                     } else {
                         alert("Gagal. Tidak ada baris data valid yang ditemukan pada file tersebut.");
                     }
@@ -1633,7 +1580,7 @@
 
         function openPropertyForm() {
             editingPropertyId = null; document.getElementById('admin-form-title').innerText = 'Tambah Properti';
-            ['form-title','form-price','form-dp','form-allincost','form-city','form-district','form-type','form-building-type','form-specs'].forEach(id => document.getElementById(id).value = '');
+            ['form-title','form-price','form-dp','form-allincost','form-city','form-district','form-type','form-building-type','form-description'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('form-image-container').innerHTML = ''; addImageInput(''); 
             renderPromoCheckboxes([], getDB().PROMOS); 
             populateLocationDropdowns('form-city', 'form-district');
@@ -1648,7 +1595,6 @@
             document.getElementById('form-dp').value = prop.dp || '';
             document.getElementById('form-allincost').value = prop.allInCost || '';
             
-            // Parsing lokasi lama
             let locParts = (prop.location || '').split(', ');
             let district = ''; let city = '';
             if(locParts.length > 1) { district = locParts[0]; city = locParts.slice(1).join(', '); } 
@@ -1658,7 +1604,7 @@
 
             document.getElementById('form-type').value = prop.type;
             document.getElementById('form-building-type').value = prop.buildingType || '';
-            document.getElementById('form-specs').value = prop.specs || '';
+            document.getElementById('form-description').value = prop.description || '';
             document.getElementById('form-image-container').innerHTML = '';
             if (prop.images && prop.images.length > 0) prop.images.forEach(img => addImageInput(img));
             else if (prop.image) addImageInput(prop.image); else addImageInput('');
@@ -1673,7 +1619,6 @@
             if (imagesArray.length === 0) imagesArray.push('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80');
             if(!title) { alert("Judul Properti wajib diisi!"); return; }
 
-            // Gabungkan Kota & Kecamatan untuk ditampilkan
             let city = document.getElementById('form-city').value.trim();
             let district = document.getElementById('form-district').value.trim();
             let finalLocation = district ? `${district}, ${city}` : city;
@@ -1681,7 +1626,7 @@
             let propData = {
                 title: title, price: document.getElementById('form-price').value, dp: document.getElementById('form-dp').value, allInCost: document.getElementById('form-allincost').value,
                 location: finalLocation, type: document.getElementById('form-type').value, buildingType: document.getElementById('form-building-type').value,
-                specs: document.getElementById('form-specs').value, promoIds: checkedPromos, images: imagesArray, image: imagesArray[0] 
+                description: document.getElementById('form-description').value, promoIds: checkedPromos, images: imagesArray, image: imagesArray[0] 
             };
 
             if (editingPropertyId) {
@@ -1710,11 +1655,10 @@
             document.getElementById('admin-detail-price').innerText = prop.price || '-';
             document.getElementById('admin-detail-dp').innerText = prop.dp || '-';
             document.getElementById('admin-detail-allin').innerText = prop.allInCost || '-';
-            document.getElementById('admin-detail-specs').innerText = prop.specs || 'Tidak ada detail.';
+            document.getElementById('admin-detail-desc').innerText = prop.description || 'Tidak ada deskripsi.';
             navigate('screen-admin-detail');
         }
 
-        // --- CRUD ADMIN LAINNYA (LEADS, AGENTS, PROMOS, USERS) ---
         function renderAdminVisitors() {
             let db = getDB();
             let countDash = document.getElementById('admin-count-visitors-dash'); let countVis = document.getElementById('admin-count-visitors');
@@ -1808,7 +1752,6 @@
             else { userData.id = Date.now(); db.USERS.push(userData); } saveDB(db); navigate('screen-admin-users');
         }
 
-        // --- CRUD ADMIN LOCATIONS ---
         function renderAdminLocations() {
             let db = getDB(); let c = document.getElementById('admin-locations-container'); if(!c) return; c.innerHTML = '';
             if (!db.LOCATIONS || db.LOCATIONS.length === 0) { c.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center border"><p class="text-sm text-gray-500">Belum ada data lokasi.</p></div>`; return; }
@@ -1840,15 +1783,13 @@
             else { locData.id = Date.now(); db.LOCATIONS.push(locData); } saveDB(db); navigate('screen-admin-locations');
         }
 
-        // Render Awal saat Web Dibuka
-        window.onload = async () => { 
+        window.onload = async function() { 
             initTheme();
             await initDB(); 
             lucide.createIcons(); 
             showLoading(false);
-            // Default diubah ke Halaman Pencarian Frontend
             navigate('screen-front-search'); 
-        }
+        };
     </script>
 </body>
 </html>
