@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PropertiHub - Web & Admin v1.5</title>
+    
+    <!-- DYNAMIC SEO TAGS -->
+    <title id="page-title">PropertiHub - Temukan Hunian Impian Anda</title>
+    <meta name="description" id="meta-desc" content="Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.">
+    <meta name="keywords" id="meta-keywords" content="properti, rumah, apartemen, jual rumah, beli rumah, propertihub">
+    
+    <!-- OPEN GRAPH (UNTUK SHARE WA/FB/IG) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" id="og-title" content="PropertiHub - Temukan Hunian Impian Anda">
+    <meta property="og:description" id="og-desc" content="Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.">
+    <meta property="og:image" id="og-image" content="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80">
+    <meta property="og:url" id="og-url" content="">
+    
+    <!-- TWITTER CARDS -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="tw-title" content="PropertiHub - Temukan Hunian Impian Anda">
+    <meta name="twitter:description" id="tw-desc" content="Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.">
+    <meta name="twitter:image" id="tw-image" content="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80">
+
+    <!-- LIBRARIES -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- SUPABASE JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style> 
@@ -44,15 +66,29 @@
         html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; color: #fca5a5 !important; }
         html.dark .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.15) !important; color: #a5b4fc !important; }
         html.dark .bg-teal-100 { background-color: rgba(20, 184, 166, 0.15) !important; color: #5eead4 !important; }
+        html.dark .bg-yellow-100 { background-color: rgba(234, 179, 8, 0.15) !important; color: #fde047 !important; }
 
         html.dark canvas { filter: invert(0.85) hue-rotate(180deg); }
     </style>
 </head>
 <body class="bg-gray-200 text-gray-900 flex justify-center">
 
+    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] hidden flex-col justify-center items-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
-        <p class="text-sm font-bold text-gray-700">Menyinkronkan Database...</p>
+        <p class="text-sm font-bold text-gray-700" id="loading-text">Memuat Data...</p>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] hidden justify-center items-center px-4">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-sm w-full transform transition-all scale-95 opacity-0" id="custom-modal-box">
+            <h3 class="text-lg font-bold text-gray-900 mb-2" id="custom-modal-title">Pemberitahuan</h3>
+            <p class="text-sm text-gray-600 mb-6" id="custom-modal-message">Pesan disini</p>
+            <div class="flex gap-3 justify-end">
+                <button id="custom-modal-cancel" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-200 transition hidden">Batal</button>
+                <button id="custom-modal-ok" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition shadow-md">Mengerti</button>
+            </div>
+        </div>
     </div>
 
     <div id="app-container" class="w-full max-w-[430px] min-h-screen bg-gray-50 relative overflow-x-hidden sm:border-x sm:border-gray-300 shadow-2xl">
@@ -70,7 +106,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">
                         <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-6 w-6 text-white"></i></div>
-                        <span onclick="navigate('screen-admin-login')" class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span></span>
+                        <span onclick="navigate('screen-admin-login')" class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span> <span id="db-status-badge" class="text-[9px] bg-emerald-500 px-1.5 py-0.5 rounded text-white ml-1 shadow-sm relative -top-2">Cloud</span></span>
                     </div>
                     <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
                 </div>
@@ -319,8 +355,7 @@
                     <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200"><i data-lucide="shield-check" class="h-8 w-8 text-white"></i></div>
                 </div>
                 <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Admin Panel</h1>
-                <p></p>
-
+               
                 <div id="admin-error" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 border border-red-100 text-center font-medium">Username atau password salah!</div>
 
                 <div class="flex flex-col gap-4">
@@ -677,6 +712,16 @@
                         </div>
                         <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
+                    
+                    <button onclick="navigate('screen-admin-seo')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
+                        <div class="bg-yellow-100 p-3 rounded-full text-yellow-600"><i data-lucide="search"></i></div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-sm text-gray-900">Pengaturan SEO</h3>
+                            <p class="text-[10px] text-gray-500">Optimasi untuk Google & Sosial Media.</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                    </button>
+
                     <button onclick="navigate('screen-admin-users')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
                         <div class="bg-indigo-100 p-3 rounded-full text-indigo-600"><i data-lucide="users-cog"></i></div>
                         <div class="flex-1">
@@ -693,6 +738,59 @@
                         </div>
                         <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
+                </div>
+
+                <!-- MENU BACKUP DAN RESTORE -->
+                <h2 class="text-lg font-bold text-gray-900 mb-4 mt-8">Manajemen Data</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="backupDatabase()" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:bg-gray-50 transition-colors">
+                        <div class="bg-green-100 p-3 rounded-full text-green-600"><i data-lucide="download"></i></div>
+                        <div class="text-center">
+                            <h3 class="font-bold text-xs text-gray-900">Backup Data</h3>
+                            <p class="text-[9px] text-gray-500 mt-1">Unduh .json</p>
+                        </div>
+                    </button>
+                    <button onclick="document.getElementById('restore-file').click()" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:bg-gray-50 transition-colors">
+                        <div class="bg-orange-100 p-3 rounded-full text-orange-600"><i data-lucide="upload"></i></div>
+                        <div class="text-center">
+                            <h3 class="font-bold text-xs text-gray-900">Restore Data</h3>
+                            <p class="text-[9px] text-gray-500 mt-1">Unggah .json</p>
+                        </div>
+                    </button>
+                    <input type="file" id="restore-file" accept=".json" class="hidden" onchange="restoreDatabase(event)" />
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SCREEN: ADMIN SEO -->
+        <div id="screen-admin-seo" class="hidden min-h-screen pb-24 flex flex-col">
+            <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
+                <button onclick="navigate('screen-admin-settings')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
+                <h1 class="font-bold text-lg">Pengaturan SEO</h1>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-xs text-yellow-800 leading-relaxed">
+                    Pengaturan ini mengubah tampilan web Anda di mesin pencari (Google) dan saat link dibagikan di WhatsApp, Facebook, dll.
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Meta Title (Judul Web Utama)</label>
+                        <input id="form-seo-title" type="text" placeholder="Cth: PropertiHub - Cari Hunian Impian" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium" />
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Meta Description (Penjelasan Singkat)</label>
+                        <textarea id="form-seo-desc" rows="3" placeholder="Platform pencarian properti terbaik di Indonesia..." class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Meta Keywords (Pisahkan dengan koma)</label>
+                        <textarea id="form-seo-keywords" rows="2" placeholder="properti, rumah, jual rumah, beli apartemen" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 mb-1.5 block">URL Gambar Default (Open Graph / Thumbnail Share)</label>
+                        <input id="form-seo-image" type="text" placeholder="https://..." class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium" />
+                    </div>
+                    <button onclick="handleSaveSEO()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold mt-2 shadow-lg">Simpan SEO</button>
                 </div>
             </div>
         </div>
@@ -815,177 +913,20 @@
     </div>
 
     <script>
-        function initTheme() {
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-            updateThemeIcons();
-        }
+        // =========================================================
+        // KREDENSIAL SUPABASE
+        // Ganti dengan URL dan Anon Key dari Project Supabase Anda!
+        // =========================================================
+        const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduY2dnZ2RxeWx0emtieG9iY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjk5NjgsImV4cCI6MjA5NDYwNTk2OH0.UJvjQBhrT0Ju7-MlUcJPKZAzPLmvmbl5k7mBoadCR_E';
+        // =========================================================
 
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateThemeIcons();
-        }
-
-        function updateThemeIcons() {
-            let isDark = document.documentElement.classList.contains('dark');
-            document.querySelectorAll('.theme-icon').forEach(icon => {
-                if(icon.tagName.toLowerCase() === 'svg') {
-                    let i = document.createElement('i');
-                    let classNames = icon.getAttribute('class').replace('lucide-moon', '').replace('lucide-sun', '').replace('lucide', '').trim();
-                    i.className = classNames;
-                    if(!i.classList.contains('theme-icon')) i.classList.add('theme-icon');
-                    i.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-                    icon.parentNode.replaceChild(i, icon);
-                } else {
-                    icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-                }
-            });
-            lucide.createIcons();
-        }
-
-        const SUPABASE_URL = 'https://mcyjktlgnihxejszmdml.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jeWprdGxnbmloeGVqc3ptZG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTI0NjUsImV4cCI6MjA5NDMyODQ2NX0.bTtEMqq-v5NAC__i1xJDSBdpOK5b1skramN1etpNL1s';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabaseClient = null;
+        let isUsingCloud = false;
 
         const DB_KEY = 'PH_DB';
-        let appDB = { PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [] };
-
-        function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
-
-        function formatRupiah(num) {
-            let rounded = Math.round(num);
-            return 'Rp. ' + new Intl.NumberFormat('id-ID').format(rounded);
-        }
-
-        function autoFormatRupiah(el) {
-            let val = el.value.replace(/[^0-9]/g, '');
-            if (!val) {
-                el.value = '';
-                return;
-            }
-            el.value = 'Rp. ' + new Intl.NumberFormat('id-ID').format(val);
-        }
-
-        async function initDB() {
-            showLoading(true);
-            try {
-                if (SUPABASE_URL === 'https://YOUR_PROJECT_ID.supabase.co') {
-                    console.warn("Kredensial Supabase belum diatur, menggunakan LocalStorage.");
-                    let dbStr = localStorage.getItem(DB_KEY);
-                    let isModified = false;
-                    
-                    if (dbStr) { appDB = JSON.parse(dbStr); } 
-                    else { appDB = { PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [] }; }
-
-                    if (!appDB.AGENCY || Object.keys(appDB.AGENCY).length === 0) {
-                        appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: 'Jl. Sudirman No. 1, Jakarta Pusat', logo: '', kprInterest: 5.5 };
-                        isModified = true;
-                    }
-
-                    if (!appDB.PROPERTIES || appDB.PROPERTIES.length === 0) {
-                        appDB.PROPERTIES = [
-                            { id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City, Tangerang', type: 'Rumah', buildingType: 'Tipe 60/90', description: 'Rumah minimalis 2 lantai yang sangat nyaman untuk keluarga modern. Terletak di jantung kota dengan akses langsung menuju stasiun kereta dan pintu tol, menjadikan hunian ini impian banyak orang.', promoIds: [1], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] },
-                            { id: 2, title: 'Apartemen Sudirman Suites', price: 'Rp. 1.500.000.000', dp: 'Rp. 150.000.000', allInCost: 'Rp. 35.000.000', location: 'Sudirman, Jakarta Pusat', type: 'Apartemen', buildingType: '2BR', description: 'Apartemen premium di pusat bisnis kota, menawarkan gaya hidup dinamis.', promoIds: [], image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80'] },
-                            { id: 3, title: 'Townhouse Asri Kemang', price: 'Rp. 4.500.000.000', dp: 'Rp. 450.000.000', allInCost: 'Rp. 50.000.000', location: 'Kemang, Jakarta Selatan', type: 'Rumah', buildingType: 'Townhouse 3 Lantai', description: 'Townhouse asri dengan konsep resort yang menyatu dengan alam.', promoIds: [1], image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80'] }
-                        ];
-                        isModified = true;
-                    }
-
-                    if (!appDB.VISITORS || appDB.VISITORS.length === 0) {
-                        appDB.VISITORS = [
-                            { id: 101, name: 'Ahmad Faisal', phone: '081234567890', type: 'Rumah', location: 'BSD City', price: '-', date: '11 Mei 2026, 09:15' }
-                        ];
-                        isModified = true;
-                    }
-                    
-                    if (!appDB.AGENTS || appDB.AGENTS.length === 0) {
-                        appDB.AGENTS = [{ id: 1, name: 'Budi Hartono', role: 'Senior Agent', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' }];
-                        isModified = true;
-                    }
-                    
-                    if (!appDB.PROMOS || appDB.PROMOS.length === 0) {
-                        appDB.PROMOS = [{ id: 1, badge: 'Promo Developer', title: 'Festival Akhir Tahun', subtitle: 'DP 0% + Bebas Biaya KPR & Notaris.' }];
-                        isModified = true;
-                    }
-                    
-                    if (!appDB.USERS || appDB.USERS.length === 0) {
-                        appDB.USERS = [
-                            { id: 1, username: 'admin', password: '123', name: 'Admin Utama', role: 'superadmin' },
-                            { id: 2, username: 'agen', password: '123', name: 'Budi (Agen)', role: 'agen' }
-                        ];
-                        isModified = true;
-                    }
-
-                    if (!appDB.LOCATIONS || appDB.LOCATIONS.length === 0) {
-                        appDB.LOCATIONS = [
-                            { id: 1, city: 'Tangerang', districts: ['BSD City', 'Alam Sutera', 'Gading Serpong'] },
-                            { id: 2, city: 'Jakarta Selatan', districts: ['Kemang', 'Pondok Indah', 'Senopati'] },
-                            { id: 3, city: 'Jakarta Pusat', districts: ['Sudirman', 'Menteng'] }
-                        ];
-                        isModified = true;
-                    }
-
-                    if (!dbStr || isModified) localStorage.setItem(DB_KEY, JSON.stringify(appDB));
-                } else {
-                    const { data, error } = await supabaseClient.from('ph_data').select('data').eq('id', 1).single();
-                    
-                    if (error && error.code !== 'PGRST116') throw error;
-                    
-                    if(data && data.data && data.data.PROPERTIES) {
-                        appDB = data.data;
-                        if(!appDB.USERS) appDB.USERS = [{ id: 1, username: 'admin', password: '123', name: 'Admin', role: 'superadmin' }];
-                        if(!appDB.AGENCY) appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: '-', logo: '', kprInterest: 5.5 };
-                        localStorage.setItem(DB_KEY, JSON.stringify(appDB)); 
-                    } else {
-                        console.log("Database Supabase kosong, menyinkronkan data default...");
-                        let dbStr = localStorage.getItem(DB_KEY);
-                        if(dbStr) appDB = JSON.parse(dbStr);
-                        if (!appDB.USERS || appDB.USERS.length === 0) {
-                            appDB.USERS = [{ id: 1, username: 'admin', password: '123', name: 'Admin Utama', role: 'superadmin' }];
-                            appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: '-', logo: '', kprInterest: 5.5 };
-                        }
-                        
-                        await supabaseClient.from('ph_data').upsert({ id: 1, data: appDB });
-                        localStorage.setItem(DB_KEY, JSON.stringify(appDB));
-                    }
-                }
-            } catch (error) {
-                console.error("Gagal terhubung ke Supabase:", error);
-                let dbStr = localStorage.getItem(DB_KEY);
-                if (dbStr) appDB = JSON.parse(dbStr);
-            }
-            showLoading(false);
-        }
-
-        function getDB() { return appDB; }
-
-        function saveDB(newData) { 
-            appDB = newData;
-            localStorage.setItem(DB_KEY, JSON.stringify(appDB));
-            if (SUPABASE_URL === 'https://YOUR_PROJECT_ID.supabase.co') return; 
-
-            showLoading(true);
-            
-            supabaseClient.from('ph_data').upsert({ id: 1, data: appDB })
-                .then(({error}) => {
-                    showLoading(false);
-                    if(error) console.error("Supabase Sync Error:", error);
-                })
-                .catch(err => {
-                    showLoading(false);
-                    console.error("Gagal sinkronisasi ke Supabase:", err);
-                });
-        }
-
+        let appDB = { PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [], SEO: {} };
+        
         let currentUser = null;
         let editingPropertyId = null;
         let editingAgentId = null;
@@ -996,12 +937,264 @@
         let selectedFrontPropertyId = null;
         let chartInstance = null;
 
+        // --- THEME & UI ---
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark'); updateThemeIcons(true);
+            } else { document.documentElement.classList.remove('dark'); updateThemeIcons(false); }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light'); updateThemeIcons(isDark);
+        }
+
+        function updateThemeIcons(isDark) {
+            const icons = document.querySelectorAll('.theme-icon');
+            icons.forEach(icon => {
+                if(icon.tagName.toLowerCase() === 'svg') {
+                    let i = document.createElement('i');
+                    i.className = icon.getAttribute('class').replace('lucide-moon', '').replace('lucide-sun', '').replace('lucide', '').trim() + ' theme-icon';
+                    i.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+                    icon.parentNode.replaceChild(i, icon);
+                } else { icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon'); }
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function showLoading(show, text="Memuat Data...") { 
+            document.getElementById('loading-text').innerText = text;
+            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; 
+        }
+
+        function showModal(message, isConfirm = false, onConfirm = null) {
+            const modal = document.getElementById('custom-modal'); const box = document.getElementById('custom-modal-box');
+            document.getElementById('custom-modal-message').innerText = message;
+            document.getElementById('custom-modal-cancel').style.display = isConfirm ? 'block' : 'none';
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { box.classList.remove('scale-95', 'opacity-0'); box.classList.add('scale-100', 'opacity-100'); }, 10);
+            document.getElementById('custom-modal-cancel').onclick = () => closeModal();
+            document.getElementById('custom-modal-ok').onclick = () => { closeModal(); if(onConfirm) onConfirm(); };
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal'); const box = document.getElementById('custom-modal-box');
+            box.classList.remove('scale-100', 'opacity-100'); box.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+        }
+
+        function formatRupiah(num) { return 'Rp. ' + new Intl.NumberFormat('id-ID').format(Math.round(num)); }
+        function autoFormatRupiah(el) {
+            let val = el.value.replace(/[^0-9]/g, '');
+            if (!val) { el.value = ''; return; }
+            el.value = 'Rp. ' + new Intl.NumberFormat('id-ID').format(val);
+        }
+
+        // --- DATABASE INIT (SUPABASE + LOCAL FALLBACK) ---
+        async function initCloudDB() {
+            showLoading(true, "Menghubungkan ke Cloud Database...");
+            
+            if (SUPABASE_URL === 'TARUH_URL_SUPABASE_DISINI') {
+                isUsingCloud = false;
+                document.getElementById('db-status-badge').innerText = "Offline";
+                document.getElementById('db-status-badge').classList.replace('bg-emerald-500', 'bg-gray-500');
+                showModal("Anda belum memasukkan URL dan KEY Supabase di dalam kode HTML. Sistem berjalan dalam Mode Offline (Local Storage).");
+                initLocalDB();
+                return;
+            }
+
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const { data, error } = await supabaseClient.from('propertihub_store').select('state').eq('id', 1).single();
+                
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        // Data kosong, inisiasi database default ke Supabase
+                        isUsingCloud = true;
+                        await initDefaultDataToSupabase();
+                    } else if (error.code === '42P01') {
+                        throw new Error("Tabel 'propertihub_store' belum dibuat di Supabase.");
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    isUsingCloud = true;
+                    appDB = data.state;
+                    validateDBStructure(); // Pastikan struktur v1.6 ada
+                    
+                    // Backup ke local storage
+                    localStorage.setItem(DB_KEY, JSON.stringify(appDB));
+                    applyDynamicSEO();
+                    showLoading(false);
+                    navigate('screen-front-search');
+                }
+            } catch (e) {
+                console.error(e);
+                isUsingCloud = false;
+                document.getElementById('db-status-badge').innerText = "Offline";
+                document.getElementById('db-status-badge').classList.replace('bg-emerald-500', 'bg-red-500');
+                showModal("Gagal terhubung ke Supabase: " + e.message + "\n\nSistem beralih ke Mode Offline (menggunakan cache data terakhir).");
+                initLocalDB();
+            }
+        }
+
+        function initLocalDB() {
+            let dbStr = localStorage.getItem(DB_KEY);
+            if (dbStr) {
+                appDB = JSON.parse(dbStr);
+                validateDBStructure();
+            } else {
+                generateDefaultData();
+                localStorage.setItem(DB_KEY, JSON.stringify(appDB));
+            }
+            applyDynamicSEO();
+            showLoading(false);
+            navigate('screen-front-search');
+        }
+
+        function validateDBStructure() {
+            let modified = false;
+            if (!appDB.AGENCY || Object.keys(appDB.AGENCY).length === 0) { appDB.AGENCY = { name: 'PropertiHub', phone: '081234567890', address: 'Jl. Sudirman', kprInterest: 5.5 }; modified = true; }
+            if (!appDB.LOCATIONS || appDB.LOCATIONS.length === 0) { appDB.LOCATIONS = [{ id: 1, city: 'Tangerang', districts: ['BSD City'] }]; modified = true; }
+            if (!appDB.SEO) { appDB.SEO = { title: 'PropertiHub', description: 'Cari hunian.' }; modified = true; }
+            if (!appDB.USERS) { appDB.USERS = [{ id: 1, username: 'admin', password: '123', name: 'Admin', role: 'superadmin' }]; modified = true; }
+            if (modified) saveDB(appDB);
+        }
+
+        function generateDefaultData() {
+            appDB = {
+                AGENCY: { name: 'PropertiHub', phone: '081234567890', address: 'Jl. Sudirman No. 1, Jakarta', logo: '', kprInterest: 5.5 },
+                SEO: { title: 'PropertiHub - Temukan Hunian Impian Anda', description: 'Platform pencarian properti terbaik.', keywords: 'properti, rumah', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80' },
+                USERS: [{ id: 1, username: 'admin', password: '123', name: 'Admin Utama', role: 'superadmin' }],
+                PROPERTIES: [
+                    { id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City, Tangerang', type: 'Rumah', buildingType: 'Tipe 60/90', description: 'Rumah minimalis 2 lantai yang sangat nyaman untuk keluarga modern.', promoIds: [1], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] }
+                ],
+                VISITORS: [],
+                AGENTS: [{ id: 1, name: 'Budi Hartono', role: 'Senior Agent', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' }],
+                PROMOS: [{ id: 1, badge: 'Promo', title: 'Festival Akhir Tahun', subtitle: 'DP 0% + Bebas Biaya KPR & Notaris.' }],
+                LOCATIONS: [{ id: 1, city: 'Tangerang', districts: ['BSD City', 'Alam Sutera'] }]
+            };
+        }
+
+        async function initDefaultDataToSupabase() {
+            generateDefaultData();
+            const { error } = await supabaseClient.from('propertihub_store').insert([{ id: 1, state: appDB }]);
+            if (error) {
+                console.error(error);
+                showModal("Gagal menginisiasi data awal ke Supabase. Beralih ke Offline.");
+                isUsingCloud = false;
+                initLocalDB();
+            } else {
+                localStorage.setItem(DB_KEY, JSON.stringify(appDB));
+                applyDynamicSEO();
+                showLoading(false);
+                navigate('screen-front-search');
+            }
+        }
+
+        function getDB() { return appDB; }
+
+        function saveDB(newData) { 
+            appDB = newData;
+            // Selalu simpan di Local Storage sebagai cadangan/cache
+            localStorage.setItem(DB_KEY, JSON.stringify(appDB));
+
+            // Simpan ke Supabase jika terhubung
+            if (isUsingCloud && supabaseClient) {
+                supabaseClient.from('propertihub_store').upsert({ id: 1, state: appDB }).then(({error}) => {
+                    if(error) console.error("Supabase Save Error:", error);
+                });
+            }
+        }
+
+        // --- SEO TAG GENERATOR ---
+        function applyDynamicSEO(customData = null) {
+            let db = getDB();
+            let seo = db.SEO || {};
+            
+            let tTitle = customData?.title || seo.title || 'PropertiHub';
+            let tDesc = customData?.description || seo.description || '';
+            let tKeywords = seo.keywords || '';
+            let tImg = customData?.image || seo.image || '';
+            let tUrl = window.location.href;
+
+            document.getElementById('page-title').innerText = tTitle;
+            document.getElementById('meta-desc').content = tDesc;
+            document.getElementById('meta-keywords').content = tKeywords;
+            
+            document.getElementById('og-title').content = tTitle;
+            document.getElementById('og-desc').content = tDesc;
+            document.getElementById('og-image').content = tImg;
+            document.getElementById('og-url').content = tUrl;
+            
+            document.getElementById('tw-title').content = tTitle;
+            document.getElementById('tw-desc').content = tDesc;
+            document.getElementById('tw-image').content = tImg;
+        }
+
+        // --- BACKUP & RESTORE JSON ---
+        function backupDatabase() {
+            let dbStr = JSON.stringify(appDB);
+            let blob = new Blob([dbStr], { type: "application/json" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            
+            let date = new Date();
+            let dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}${date.getDate().toString().padStart(2,'0')}`;
+            a.download = `PropertiHub_Backup_${dateStr}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showModal("File backup database (.json) berhasil diunduh.");
+        }
+
+        function restoreDatabase(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            showModal("Anda yakin ingin memulihkan database? Seluruh data yang ada saat ini (termasuk di Cloud) akan tertimpa secara permanen dengan data dari file backup.", true, () => {
+                showLoading(true);
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let content = e.target.result;
+                        let parsedData = JSON.parse(content);
+                        
+                        if (parsedData && parsedData.PROPERTIES && Array.isArray(parsedData.USERS)) {
+                            appDB = parsedData;
+                            saveDB(appDB); // Ini akan mengunggah JSON ke Supabase juga
+                            applyDynamicSEO();
+                            showLoading(false);
+                            showModal("Restore database berhasil! Data aplikasi telah diperbarui di Lokal dan Cloud.");
+                        } else {
+                            showLoading(false);
+                            showModal("Gagal Restore: File JSON tidak dikenali sebagai format backup PropertiHub.");
+                        }
+                    } catch (err) {
+                        showLoading(false);
+                        console.error("Restore Error:", err);
+                        showModal("Terjadi kesalahan! Gagal membaca file JSON backup.");
+                    }
+                };
+                reader.onerror = function() {
+                    showLoading(false);
+                    showModal("Terjadi kesalahan sistem saat membaca file.");
+                }
+                reader.readAsText(file);
+            });
+            event.target.value = '';
+        }
+
         const screens = [
             'screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-agents',
             'screen-admin-login', 'screen-admin-dashboard', 'screen-admin-listing', 'screen-admin-property-form', 'screen-admin-detail',
             'screen-admin-visitors', 'screen-admin-agents', 'screen-admin-agent-form', 'screen-admin-promos', 'screen-admin-promo-form',
             'screen-admin-settings', 'screen-admin-agency', 'screen-admin-users', 'screen-admin-user-form',
-            'screen-admin-locations', 'screen-admin-location-form'
+            'screen-admin-locations', 'screen-admin-location-form', 'screen-admin-seo'
         ];
         
         function navigate(targetScreen) {
@@ -1028,12 +1221,15 @@
             }
 
             if (targetScreen === 'screen-front-home') {
+                applyDynamicSEO();
                 renderFrontHome();
             } else if (targetScreen === 'screen-front-search') {
+                applyDynamicSEO();
                 initFrontSearch();
             } else if (targetScreen === 'screen-front-detail') {
                 renderFrontDetail();
             } else if (targetScreen === 'screen-front-agents') {
+                applyDynamicSEO();
                 renderFrontAgents();
             } else if (targetScreen === 'screen-admin-dashboard' || targetScreen === 'screen-admin-listing') {
                 renderAdminProperties();
@@ -1048,6 +1244,8 @@
                 renderAdminUsers();
             } else if (targetScreen === 'screen-admin-agency') {
                 renderAdminAgency();
+            } else if (targetScreen === 'screen-admin-seo') {
+                renderAdminSEO();
             } else if (targetScreen === 'screen-admin-locations') {
                 renderAdminLocations();
             }
@@ -1065,6 +1263,8 @@
             lucide.createIcons();
             window.scrollTo(0,0);
         }
+
+        // --- ALL EXISTING FRONTEND AND ADMIN LOGIC REMAINS IDENTICAL ---
 
         function renderFrontHome() {
             let db = getDB();
@@ -1135,6 +1335,12 @@
             let prop = db.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId));
             if(!prop) return navigate('screen-front-home');
 
+            applyDynamicSEO({
+                title: `${prop.title} | ${db.AGENCY?.name || 'PropertiHub'}`,
+                description: prop.description ? prop.description.substring(0, 150) + '...' : `Dijual ${prop.title} berlokasi di ${prop.location}.`,
+                image: prop.image
+            });
+
             document.getElementById('front-detail-image').src = prop.image;
             document.getElementById('front-detail-type').innerText = prop.type + (prop.buildingType ? ` • ${prop.buildingType}` : '');
             document.getElementById('front-detail-title').innerText = prop.title;
@@ -1193,17 +1399,19 @@
             let shareUrl = window.location.origin + window.location.pathname;
 
             if (navigator.share) {
-                navigator.share({
-                    title: shareTitle,
-                    text: shareText,
-                    url: shareUrl
-                }).catch(console.error);
+                navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(console.error);
             } else {
-                navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
-                    alert('Info properti berhasil disalin ke clipboard! Silakan paste (tempel) di sosial media Anda.');
-                }).catch(err => {
+                const textarea = document.createElement("textarea");
+                textarea.value = `${shareText}\n${shareUrl}`;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand("copy");
+                    showModal('Info properti berhasil disalin! Silakan tempel di sosial media Anda.');
+                } catch (err) {
                     console.error('Gagal menyalin:', err);
-                });
+                }
+                document.body.removeChild(textarea);
             }
         }
 
@@ -1211,23 +1419,19 @@
             let desc = document.getElementById('front-detail-desc');
             let btn = document.getElementById('front-desc-toggle');
             if (desc.classList.contains('line-clamp-3')) {
-                desc.classList.remove('line-clamp-3');
-                btn.innerText = 'Tutup';
+                desc.classList.remove('line-clamp-3'); btn.innerText = 'Tutup';
             } else {
-                desc.classList.add('line-clamp-3');
-                btn.innerText = 'Baca Selengkapnya';
+                desc.classList.add('line-clamp-3'); btn.innerText = 'Baca Selengkapnya';
             }
         }
 
         function renderFrontAgents() {
             let db = getDB();
             let container = document.getElementById('front-agents-container');
-            if(!container) return;
-            container.innerHTML = '';
+            if(!container) return; container.innerHTML = '';
             
             if (db.AGENTS.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center border"><p class="text-sm text-gray-500">Belum ada agen terdaftar.</p></div>`;
-                return;
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center border"><p class="text-sm text-gray-500">Belum ada agen terdaftar.</p></div>`; return;
             }
 
             db.AGENTS.forEach(a => {
@@ -1273,9 +1477,7 @@
             let promoSelect = document.getElementById('front-lead-promo');
             if(promoSelect) {
                 promoSelect.innerHTML = '<option value="-">Tanpa Promo Khusus</option>';
-                db.PROMOS.forEach(p => {
-                    promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`;
-                });
+                db.PROMOS.forEach(p => { promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`; });
             }
             populateLocationDropdowns('front-lead-city', 'front-lead-district');
         }
@@ -1335,7 +1537,7 @@
             let name = document.getElementById('front-lead-name').value;
             let phone = document.getElementById('front-lead-phone').value;
 
-            if(!name || !phone) { alert("Mohon lengkapi Nama dan No. HP/WhatsApp Anda."); return; }
+            if(!name || !phone) { showModal("Mohon lengkapi Nama dan No. HP/WhatsApp Anda."); return; }
 
             let db = getDB();
             let newLead = {
@@ -1360,8 +1562,9 @@
             document.getElementById('front-lead-district').value = '';
             document.getElementById('front-lead-building').value = '';
 
-            alert("Pencarian berhasil! Tim kami akan segera menghubungi Anda melalui WhatsApp dengan rekomendasi terbaik.");
-            navigate('screen-front-home');
+            showModal("Pencarian berhasil! Tim kami akan segera menghubungi Anda melalui WhatsApp dengan rekomendasi terbaik.", false, () => {
+                navigate('screen-front-home');
+            });
         }
 
         function handleAdminLogin() {
@@ -1369,10 +1572,7 @@
             let passVal = document.getElementById('login-pass').value;
             let db = getDB();
             
-            let user = db.USERS.find(u => 
-                String(u.username).trim() === String(userVal).trim() && 
-                String(u.password).trim() === String(passVal).trim()
-            );
+            let user = db.USERS.find(u => String(u.username).trim() === String(userVal).trim() && String(u.password).trim() === String(passVal).trim());
 
             if(user) {
                 currentUser = user;
@@ -1436,7 +1636,7 @@
         function handleBulkUpload() {
             const fileInput = document.getElementById('bulk-excel-file');
             const file = fileInput.files[0];
-            if (!file) return alert("Pilih file Excel terlebih dahulu!");
+            if (!file) return showModal("Pilih file Excel terlebih dahulu!");
 
             showLoading(true);
             const reader = new FileReader();
@@ -1451,7 +1651,7 @@
 
                     if(rows.length < 2) {
                         showLoading(false);
-                        return alert("File kosong atau tidak ada data yang diisi.");
+                        return showModal("File kosong atau tidak ada data yang diisi.");
                     }
 
                     const db = getDB();
@@ -1478,18 +1678,8 @@
                         if (!finalLocation) finalLocation = 'Lokasi Belum Ditentukan';
 
                         db.PROPERTIES.unshift({
-                            id: Date.now() + i,
-                            title: title,
-                            price: price,
-                            dp: dp,
-                            allInCost: allInCost,
-                            location: finalLocation,
-                            type: type,
-                            buildingType: buildingType,
-                            description: desc,
-                            promoIds: [],
-                            image: image,
-                            images: [image]
+                            id: Date.now() + i, title: title, price: price, dp: dp, allInCost: allInCost, location: finalLocation,
+                            type: type, buildingType: buildingType, description: desc, promoIds: [], image: image, images: [image]
                         });
                         addedCount++;
                     }
@@ -1497,25 +1687,21 @@
                     showLoading(false);
                     if(addedCount > 0) {
                         saveDB(db);
-                        alert(`Sukses! ${addedCount} properti berhasil ditambahkan secara massal.`);
+                        showModal(`Sukses! ${addedCount} properti berhasil ditambahkan secara massal.`);
                         fileInput.value = '';
                         toggleBulkUpload();
                         renderAdminProperties();
                     } else {
-                        alert("Gagal. Tidak ada baris data valid yang ditemukan pada file tersebut.");
+                        showModal("Gagal. Tidak ada baris data valid yang ditemukan pada file tersebut.");
                     }
                 } catch(error) {
                     showLoading(false);
                     console.error("Excel Parsing Error:", error);
-                    alert("Terjadi kesalahan saat memproses file Excel. Pastikan format tabelnya benar.");
+                    showModal("Terjadi kesalahan saat memproses file Excel. Pastikan format tabelnya benar.");
                 }
             };
             
-            reader.onerror = function() {
-                showLoading(false);
-                alert("Terjadi kesalahan saat membaca file.");
-            };
-            
+            reader.onerror = function() { showLoading(false); showModal("Terjadi kesalahan saat membaca file."); };
             reader.readAsArrayBuffer(file);
         }
 
@@ -1527,8 +1713,7 @@
             if(countList) countList.innerText = db.PROPERTIES.length;
 
             let container = document.getElementById('admin-properties-container');
-            if (!container) return;
-            container.innerHTML = '';
+            if (!container) return; container.innerHTML = '';
 
             if (db.PROPERTIES.length === 0) {
                 container.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center border"><p class="text-sm text-gray-500">Tidak ada properti.</p></div>`; return;
@@ -1554,11 +1739,11 @@
         }
 
         function deleteProperty(id) {
-            if(confirm('Yakin ingin menghapus properti ini?')) {
+            showModal('Yakin ingin menghapus properti ini?', true, () => {
                 let db = getDB();
                 db.PROPERTIES = db.PROPERTIES.filter(p => String(p.id) !== String(id));
                 saveDB(db); renderAdminProperties(); 
-            }
+            });
         }
 
         function renderPromoCheckboxes(selectedIds = [], dbPromos) {
@@ -1617,7 +1802,7 @@
             let imageInputs = document.querySelectorAll('.form-image-input');
             let imagesArray = []; imageInputs.forEach(input => { if (input.value.trim() !== '') imagesArray.push(input.value.trim()); });
             if (imagesArray.length === 0) imagesArray.push('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80');
-            if(!title) { alert("Judul Properti wajib diisi!"); return; }
+            if(!title) { showModal("Judul Properti wajib diisi!"); return; }
 
             let city = document.getElementById('form-city').value.trim();
             let district = document.getElementById('form-district').value.trim();
@@ -1685,7 +1870,7 @@
         }
 
         function downloadCSV() {
-            let db = getDB(); if (db.VISITORS.length === 0) return alert("Belum ada data.");
+            let db = getDB(); if (db.VISITORS.length === 0) return showModal("Belum ada data.");
             let csvContent = "data:text/csv;charset=utf-8,Tanggal,Nama,No WA,Minat Tipe,Ukuran,Lokasi,Budget DP,Promo\n";
             db.VISITORS.forEach(v => { csvContent += `"${v.date}","${v.name}","${v.phone}","${v.type}","${v.building || '-'}","${v.location}","${v.dp || '-'}","${v.promo || '-'}"\n`; });
             const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `Leads_PropertiHub.csv`;
@@ -1702,10 +1887,10 @@
 
         function openAgentForm() { editingAgentId = null; document.getElementById('admin-agent-form-title').innerText = 'Tambah Agen'; ['form-agent-name', 'form-agent-role', 'form-agent-phone', 'form-agent-image'].forEach(id => document.getElementById(id).value = ''); navigate('screen-admin-agent-form'); }
         function editAgent(id) { let db = getDB(); let agent = db.AGENTS.find(a => String(a.id) === String(id)); if(!agent) return; editingAgentId = id; document.getElementById('admin-agent-form-title').innerText = 'Edit Agen'; document.getElementById('form-agent-name').value = agent.name; document.getElementById('form-agent-role').value = agent.role; document.getElementById('form-agent-phone').value = agent.phone; document.getElementById('form-agent-image').value = agent.image; navigate('screen-admin-agent-form'); }
-        function deleteAgent(id) { if(confirm('Yakin ingin menghapus agen ini?')) { let db = getDB(); db.AGENTS = db.AGENTS.filter(a => String(a.id) !== String(id)); saveDB(db); renderAdminAgents(); } }
+        function deleteAgent(id) { showModal('Yakin ingin menghapus agen ini?', true, () => { let db = getDB(); db.AGENTS = db.AGENTS.filter(a => String(a.id) !== String(id)); saveDB(db); renderAdminAgents(); }); }
         function handleSaveAgent() {
             let db = getDB(); let name = document.getElementById('form-agent-name').value; let role = document.getElementById('form-agent-role').value; let phone = document.getElementById('form-agent-phone').value; let image = document.getElementById('form-agent-image').value;
-            if(!name || !phone) return alert('Nama dan No WA wajib diisi!');
+            if(!name || !phone) return showModal('Nama dan No WA wajib diisi!');
             let agentData = { name: name, role: role, phone: phone, image: image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' };
             if (editingAgentId) { let index = db.AGENTS.findIndex(a => String(a.id) === String(editingAgentId)); if(index !== -1) db.AGENTS[index] = { ...db.AGENTS[index], ...agentData }; } 
             else { agentData.id = Date.now(); db.AGENTS.unshift(agentData); } saveDB(db); navigate('screen-admin-agents');
@@ -1721,17 +1906,36 @@
 
         function openPromoForm() { editingPromoId = null; document.getElementById('admin-promo-form-title').innerText = 'Tambah Promo'; ['form-promo-badge', 'form-promo-title', 'form-promo-subtitle'].forEach(id => document.getElementById(id).value = ''); navigate('screen-admin-promo-form'); }
         function editPromo(id) { let db = getDB(); let promo = db.PROMOS.find(p => String(p.id) === String(id)); if(!promo) return; editingPromoId = id; document.getElementById('admin-promo-form-title').innerText = 'Edit Promo'; document.getElementById('form-promo-badge').value = promo.badge; document.getElementById('form-promo-title').value = promo.title; document.getElementById('form-promo-subtitle').value = promo.subtitle; navigate('screen-admin-promo-form'); }
-        function deletePromo(id) { if(confirm('Yakin ingin menghapus promo ini?')) { let db = getDB(); db.PROMOS = db.PROMOS.filter(p => String(p.id) !== String(id)); saveDB(db); renderAdminPromos(); } }
+        function deletePromo(id) { showModal('Yakin ingin menghapus promo ini?', true, () => { let db = getDB(); db.PROMOS = db.PROMOS.filter(p => String(p.id) !== String(id)); saveDB(db); renderAdminPromos(); }); }
         function handleSavePromo() {
             let db = getDB(); let badge = document.getElementById('form-promo-badge').value; let title = document.getElementById('form-promo-title').value; let subtitle = document.getElementById('form-promo-subtitle').value;
-            if(!title || !subtitle) return alert('Judul dan Deskripsi wajib diisi!');
+            if(!title || !subtitle) return showModal('Judul dan Deskripsi wajib diisi!');
             let promoData = { badge: badge || 'Promo', title: title, subtitle: subtitle };
             if (editingPromoId) { let index = db.PROMOS.findIndex(p => String(p.id) === String(editingPromoId)); if(index !== -1) db.PROMOS[index] = { ...db.PROMOS[index], ...promoData }; } 
             else { promoData.id = Date.now(); db.PROMOS.unshift(promoData); } saveDB(db); navigate('screen-admin-promos');
         }
 
         function renderAdminAgency() { let db = getDB(); document.getElementById('form-agency-name').value = db.AGENCY.name || ''; document.getElementById('form-agency-phone').value = db.AGENCY.phone || ''; document.getElementById('form-agency-address').value = db.AGENCY.address || ''; document.getElementById('form-agency-logo').value = db.AGENCY.logo || ''; document.getElementById('form-agency-kpr').value = db.AGENCY.kprInterest || 5.5; }
-        function handleSaveAgency() { let db = getDB(); if(!db.AGENCY) db.AGENCY = {}; db.AGENCY.name = document.getElementById('form-agency-name').value; db.AGENCY.phone = document.getElementById('form-agency-phone').value; db.AGENCY.address = document.getElementById('form-agency-address').value; db.AGENCY.logo = document.getElementById('form-agency-logo').value; db.AGENCY.kprInterest = parseFloat(document.getElementById('form-agency-kpr').value) || 5.5; saveDB(db); alert("Profil Agensi berhasil disimpan!"); navigate('screen-admin-settings'); }
+        function handleSaveAgency() { let db = getDB(); if(!db.AGENCY) db.AGENCY = {}; db.AGENCY.name = document.getElementById('form-agency-name').value; db.AGENCY.phone = document.getElementById('form-agency-phone').value; db.AGENCY.address = document.getElementById('form-agency-address').value; db.AGENCY.logo = document.getElementById('form-agency-logo').value; db.AGENCY.kprInterest = parseFloat(document.getElementById('form-agency-kpr').value) || 5.5; saveDB(db); showModal("Profil Agensi berhasil disimpan!"); navigate('screen-admin-settings'); }
+
+        function renderAdminSEO() { 
+            let db = getDB(); 
+            document.getElementById('form-seo-title').value = db.SEO?.title || ''; 
+            document.getElementById('form-seo-desc').value = db.SEO?.description || ''; 
+            document.getElementById('form-seo-keywords').value = db.SEO?.keywords || ''; 
+            document.getElementById('form-seo-image').value = db.SEO?.image || ''; 
+        }
+        function handleSaveSEO() { 
+            let db = getDB(); if(!db.SEO) db.SEO = {}; 
+            db.SEO.title = document.getElementById('form-seo-title').value; 
+            db.SEO.description = document.getElementById('form-seo-desc').value; 
+            db.SEO.keywords = document.getElementById('form-seo-keywords').value; 
+            db.SEO.image = document.getElementById('form-seo-image').value; 
+            saveDB(db); 
+            applyDynamicSEO();
+            showModal("Pengaturan SEO berhasil disimpan!"); 
+            navigate('screen-admin-settings'); 
+        }
 
         function renderAdminUsers() {
             let db = getDB(); let c = document.getElementById('admin-users-container'); if(!c) return; c.innerHTML = '';
@@ -1742,11 +1946,11 @@
         }
         function openUserForm() { editingUserId = null; document.getElementById('admin-user-form-title').innerText = 'Tambah Pengguna'; ['form-user-name', 'form-user-username', 'form-user-password'].forEach(id => document.getElementById(id).value = ''); document.getElementById('form-user-role').value = 'agen'; navigate('screen-admin-user-form'); }
         function editUser(id) { let db = getDB(); let user = db.USERS.find(u => String(u.id) === String(id)); if(!user) return; editingUserId = id; document.getElementById('admin-user-form-title').innerText = 'Edit Pengguna'; document.getElementById('form-user-name').value = user.name; document.getElementById('form-user-username').value = user.username; document.getElementById('form-user-password').value = user.password; document.getElementById('form-user-role').value = user.role; navigate('screen-admin-user-form'); }
-        function deleteUser(id) { if(confirm('Yakin ingin menghapus akun ini?')) { let db = getDB(); db.USERS = db.USERS.filter(u => String(u.id) !== String(id)); saveDB(db); renderAdminUsers(); } }
+        function deleteUser(id) { showModal('Yakin ingin menghapus akun ini?', true, () => { let db = getDB(); db.USERS = db.USERS.filter(u => String(u.id) !== String(id)); saveDB(db); renderAdminUsers(); }); }
         function handleSaveUser() {
             let db = getDB(); let name = document.getElementById('form-user-name').value; let username = document.getElementById('form-user-username').value; let password = document.getElementById('form-user-password').value; let role = document.getElementById('form-user-role').value;
-            if(!name || !username || !password) return alert('Semua kolom wajib diisi!');
-            if(db.USERS.find(u => u.username === username && String(u.id) !== String(editingUserId))) return alert('Username sudah dipakai!');
+            if(!name || !username || !password) return showModal('Semua kolom wajib diisi!');
+            if(db.USERS.find(u => u.username === username && String(u.id) !== String(editingUserId))) return showModal('Username sudah dipakai!');
             let userData = { name: name, username: username, password: password, role: role };
             if (editingUserId) { let index = db.USERS.findIndex(u => String(u.id) === String(editingUserId)); if(index !== -1) db.USERS[index] = { ...db.USERS[index], ...userData }; if(String(currentUser.id) === String(editingUserId)) { currentUser = db.USERS[index]; document.getElementById('dashboard-greeting').innerText = `Halo, ${currentUser.name}`; } } 
             else { userData.id = Date.now(); db.USERS.push(userData); } saveDB(db); navigate('screen-admin-users');
@@ -1772,10 +1976,10 @@
 
         function openLocationForm() { editingLocationId = null; document.getElementById('admin-location-form-title').innerText = 'Tambah Lokasi'; document.getElementById('form-loc-city').value = ''; document.getElementById('form-loc-districts').value = ''; navigate('screen-admin-location-form'); }
         function editLocation(id) { let db = getDB(); let loc = db.LOCATIONS.find(l => String(l.id) === String(id)); if(!loc) return; editingLocationId = id; document.getElementById('admin-location-form-title').innerText = 'Edit Lokasi'; document.getElementById('form-loc-city').value = loc.city; document.getElementById('form-loc-districts').value = (loc.districts || []).join(', '); navigate('screen-admin-location-form'); }
-        function deleteLocation(id) { if(confirm('Yakin ingin menghapus lokasi ini?')) { let db = getDB(); db.LOCATIONS = db.LOCATIONS.filter(l => String(l.id) !== String(id)); saveDB(db); renderAdminLocations(); } }
+        function deleteLocation(id) { showModal('Yakin ingin menghapus lokasi ini?', true, () => { let db = getDB(); db.LOCATIONS = db.LOCATIONS.filter(l => String(l.id) !== String(id)); saveDB(db); renderAdminLocations(); }); }
         function handleSaveLocation() {
             let db = getDB(); let city = document.getElementById('form-loc-city').value.trim(); let districtsRaw = document.getElementById('form-loc-districts').value;
-            if(!city) return alert('Kota / Kabupaten wajib diisi!');
+            if(!city) return showModal('Kota / Kabupaten wajib diisi!');
             let districts = districtsRaw.split(',').map(d => d.trim()).filter(d => d !== '');
             let locData = { city: city, districts: districts };
             if(!db.LOCATIONS) db.LOCATIONS = [];
@@ -1783,12 +1987,10 @@
             else { locData.id = Date.now(); db.LOCATIONS.push(locData); } saveDB(db); navigate('screen-admin-locations');
         }
 
-        window.onload = async function() { 
+        window.onload = function() { 
             initTheme();
-            await initDB(); 
+            initCloudDB(); 
             lucide.createIcons(); 
-            showLoading(false);
-            navigate('screen-front-search'); 
         };
     </script>
 </body>
