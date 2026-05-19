@@ -58,6 +58,8 @@
         html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; border-color: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
         html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; color: #fca5a5 !important; }
         html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.1) !important; border-color: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
+        html.dark .bg-cyan-50 { background-color: rgba(6, 182, 212, 0.1) !important; border-color: rgba(6, 182, 212, 0.2) !important; color: #67e8f9 !important; }
+        html.dark .bg-purple-50 { background-color: rgba(168, 85, 247, 0.1) !important; border-color: rgba(168, 85, 247, 0.2) !important; color: #d8b4fe !important; }
         
         html.dark canvas { filter: invert(0.85) hue-rotate(180deg); }
     </style>
@@ -108,7 +110,7 @@
                       <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
                         <i data-lucide="building-2" class="h-5 w-5 text-gray-400 mr-3"></i>
                         <select id="front-lead-type" class="bg-transparent w-full outline-none text-sm font-medium">
-                          <option>Rumah</option><option>Apartemen</option><option>Ruko</option><option>Tanah</option><option>Villa</option>
+                          <!-- Dimuat dinamis oleh appDB.PROPERTY_TYPES -->
                         </select>
                       </div>
                    </div>
@@ -197,21 +199,47 @@
             </div>
 
             <section class="py-8 px-5 -mt-6 relative z-20">
-                <div class="grid grid-cols-4 gap-3">
-                    <div class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center"><div class="p-3 rounded-full mb-2 bg-blue-100 text-blue-600"><i data-lucide="home" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800">Rumah</span></div>
-                    <div class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center"><div class="p-3 rounded-full mb-2 bg-orange-100 text-orange-600"><i data-lucide="building-2" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800">Apartemen</span></div>
-                    <div class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center"><div class="p-3 rounded-full mb-2 bg-green-100 text-green-600"><i data-lucide="building" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800">Ruko</span></div>
-                    <div class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center"><div class="p-3 rounded-full mb-2 bg-amber-100 text-amber-600"><i data-lucide="trees" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800">Tanah</span></div>
+                <div id="front-property-types-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                    <!-- Dimuat dinamis oleh JavaScript -->
                 </div>
             </section>
 
             <section id="front-promos-container" class="py-2 px-5"></section>
+            
             <section class="py-6 px-5">
                 <div class="flex justify-between items-end mb-4">
-                    <div><h2 class="text-xl font-bold text-gray-900 mb-1">Listing Terbaru</h2><p class="text-xs text-gray-500">Rekomendasi terbaik untuk Anda</p></div>
+                    <div><h2 class="text-xl font-bold text-gray-900 mb-1">Listing Terbaru</h2><p class="text-xs text-gray-500">Rekomendasi properti pilihan</p></div>
                 </div>
                 <div id="front-properties-container" class="flex flex-col gap-5"></div>
+                
+                <!-- TOMBOL LIHAT SEMUA PROPERTI -->
+                <div id="front-view-all-btn-container" class="mt-6 text-center hidden">
+                    <button onclick="navigate('screen-front-all-properties')" class="w-full bg-white text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                        Lihat Semua Properti <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </button>
+                </div>
             </section>
+        </div>
+
+        <!-- NEW SCREEN: SEMUA PROPERTI (DENGAN PAGINASI) -->
+        <div id="screen-front-all-properties" class="hidden min-h-screen bg-gray-50 pb-24">
+            <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center sticky top-0 z-50">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigate('screen-front-home')" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Semua Properti</h1>
+                        <p class="text-[10px] text-blue-200" id="front-all-properties-count">0 Listing Tersedia</p>
+                    </div>
+                </div>
+                <button onclick="toggleDarkMode()" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
+            </div>
+            
+            <div class="py-6 px-5">
+                <div id="front-all-properties-container" class="flex flex-col gap-5 mb-8"></div>
+                
+                <!-- PAGINATION CONTAINER -->
+                <div id="front-all-properties-pagination" class="flex justify-center items-center gap-2 flex-wrap"></div>
+            </div>
         </div>
 
         <div id="screen-front-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
@@ -221,7 +249,7 @@
                 <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"></div>
                 
                 <div class="absolute top-5 left-5 right-5 flex justify-between items-center z-20">
-                    <button onclick="navigate('screen-front-home')" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></button>
+                    <button onclick="goBackFromDetail()" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></button>
                     <div class="flex gap-2">
                         <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
                         <button onclick="shareProperty()" class="bg-white/20 backdrop-blur-md p-2.5 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="share-2" class="h-5 w-5"></i></button>
@@ -327,7 +355,7 @@
                     <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200"><i data-lucide="shield-check" class="h-8 w-8 text-white"></i></div>
                 </div>
                 <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Admin Panel</h1>
-                <p class="text-sm text-center text-gray-500 mb-8">Login: <b>admin/123</b> atau <b>agen/123</b></p>
+                
                 <div id="admin-error" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 border border-red-100 text-center font-medium">Username atau password salah!</div>
                 <div class="flex flex-col gap-4">
                     <div>
@@ -457,7 +485,7 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <div><label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Tipe Properti</label><select id="form-type" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium"><option>Rumah</option><option>Apartemen</option><option>Ruko</option><option>Tanah</option><option>Villa</option></select></div>
+                        <div><label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Tipe Properti</label><select id="form-type" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium"></select></div>
                         <div><label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Tipe Ukuran</label><input id="form-building-type" type="text" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium" /></div>
                     </div>
                     <div><label class="text-[10px] font-bold text-gray-500 mb-1.5 block">Deskripsi</label><textarea id="form-description" rows="4" class="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium resize-none"></textarea></div>
@@ -591,6 +619,10 @@
                     <button onclick="navigate('screen-admin-agency')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
                         <div class="bg-blue-100 p-3 rounded-full text-blue-600"><i data-lucide="building"></i></div><div class="flex-1"><h3 class="font-bold text-sm text-gray-900">Profil Agensi</h3><p class="text-[10px] text-gray-500">Ubah nama, alamat, dan kontak.</p></div><i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
+                    <!-- MENU JENIS PROPERTI CUSTOM -->
+                    <button onclick="navigate('screen-admin-property-types')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
+                        <div class="bg-cyan-100 p-3 rounded-full text-cyan-600"><i data-lucide="layers"></i></div><div class="flex-1"><h3 class="font-bold text-sm text-gray-900">Jenis Properti</h3><p class="text-[10px] text-gray-500">Custom tipe, icon Rumah, Apartemen, dll.</p></div><i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                    </button>
                     <button onclick="navigate('screen-admin-seo')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
                         <div class="bg-yellow-100 p-3 rounded-full text-yellow-600"><i data-lucide="search"></i></div><div class="flex-1"><h3 class="font-bold text-sm text-gray-900">Pengaturan SEO</h3><p class="text-[10px] text-gray-500">Optimasi untuk Google & Share.</p></div><i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
@@ -622,6 +654,49 @@
                 </div>
             </div>
         </div>
+
+        <!-- NEW SCREENS FOR PROPERTY TYPES -->
+        <div id="screen-admin-property-types" class="hidden min-h-screen pb-24">
+            <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigate('screen-admin-settings')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button><h1 class="font-bold text-lg">Jenis Properti</h1>
+                </div>
+            </div>
+            <div class="px-5 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Semua Jenis</h2>
+                    <button onclick="openPropertyTypeForm()" class="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-200"><i data-lucide="plus" class="h-4 w-4"></i> Tambah</button>
+                </div>
+                <div id="admin-property-types-container" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+
+        <div id="screen-admin-property-type-form" class="hidden min-h-screen pb-24 flex flex-col">
+            <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
+                <button onclick="navigate('screen-admin-property-types')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
+                <h1 id="admin-property-type-form-title" class="font-bold text-lg">Tambah Jenis</h1>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold block mb-1">Nama Jenis Properti</label>
+                        <input id="form-property-type-name" type="text" placeholder="Cth: Ruko, Kost, Gudang" class="w-full bg-gray-50 p-3 rounded-xl border text-sm" />
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold block mb-1">Nama Icon (Lucide Icons)</label>
+                        <div class="flex items-center gap-3">
+                            <input id="form-property-type-icon" type="text" placeholder="Cth: home, building, tent" class="w-full bg-gray-50 p-3 rounded-xl border text-sm" />
+                            <a href="https://lucide.dev/icons" target="_blank" class="bg-blue-50 text-blue-600 p-3 rounded-xl border border-blue-100" title="Cari Icon">
+                                <i data-lucide="search" class="h-5 w-5"></i>
+                            </a>
+                        </div>
+                        <p class="text-[9px] text-gray-500 mt-1">Gunakan nama icon bahasa inggris dari website Lucide. Contoh: <b>home</b>, <b>building-2</b>, <b>trees</b>.</p>
+                    </div>
+                    <button onclick="handleSavePropertyType()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold mt-2 shadow-lg">Simpan Jenis</button>
+                </div>
+            </div>
+        </div>
+        <!-- END NEW SCREENS -->
 
         <div id="screen-admin-seo" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
@@ -719,17 +794,28 @@
         // ====================================================================
         // KREDENSIAL SUPABASE (HARDCODE DI SINI)
         // ====================================================================
-        const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
+         const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduY2dnZ2RxeWx0emtieG9iY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjk5NjgsImV4cCI6MjA5NDYwNTk2OH0.UJvjQBhrT0Ju7-MlUcJPKZAzPLmvmbl5k7mBoadCR_E';
         // ====================================================================
 
         const DB_KEY = 'PH_DB';
-        let appDB = { PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [], SEO: {} };
+        let appDB = { 
+            PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [], SEO: {}, 
+            PROPERTY_TYPES: [
+                {name: 'Rumah', icon: 'home'}, {name: 'Apartemen', icon: 'building-2'}, 
+                {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
+            ] 
+        };
         
         let currentUser = null; let editingPropertyId = null; let editingAgentId = null; let editingPromoId = null; 
-        let editingUserId = null; let editingLocationId = null; let selectedAdminPropertyId = null; let selectedFrontPropertyId = null;
+        let editingUserId = null; let editingLocationId = null; let editingPropertyTypeIndex = null;
+        let selectedAdminPropertyId = null; let selectedFrontPropertyId = null;
         let chartInstance = null; let supabaseClient = null; let isUsingCloud = false;
         let currentDetailImages = []; let currentSlideIndex = 0;
+        
+        // VARIABEL UNTUK PAGINASI
+        let currentAllPropertiesPage = 1;
+        const PROPERTIES_PER_PAGE = 5;
 
         // UI & UTILITIES
         function initTheme() {
@@ -787,14 +873,40 @@
                     isUsingCloud = true; document.getElementById('db-status-badge').innerText = "Cloud"; document.getElementById('db-status-badge').classList.replace('bg-gray-500', 'bg-emerald-500');
                 } catch(e) { console.error("Supabase fail, fallback to local:", e); loadLocalDB(); }
             } else loadLocalDB();
-            applyDynamicSEO(); showLoading(false);
+            
+            if (!appDB.PROPERTY_TYPES || appDB.PROPERTY_TYPES.length === 0) {
+                appDB.PROPERTY_TYPES = [
+                    {name: 'Rumah', icon: 'home'}, {name: 'Apartemen', icon: 'building-2'}, 
+                    {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
+                ];
+            } else if (typeof appDB.PROPERTY_TYPES[0] === 'string') {
+                appDB.PROPERTY_TYPES = appDB.PROPERTY_TYPES.map(name => {
+                    let icon = 'box'; if(name.toLowerCase().includes('rumah')) icon = 'home'; if(name.toLowerCase().includes('apartemen')) icon = 'building-2'; if(name.toLowerCase().includes('ruko')) icon = 'building'; if(name.toLowerCase().includes('tanah')) icon = 'trees'; if(name.toLowerCase().includes('villa')) icon = 'tent';
+                    return { name: name, icon: icon };
+                });
+            }
+            
+            applyDynamicSEO(); populatePropertyTypesDropdowns(); showLoading(false);
         }
 
         function loadLocalDB(updateUI = true) {
             if(updateUI) { isUsingCloud = false; document.getElementById('db-status-badge').innerText = "Offline"; document.getElementById('db-status-badge').classList.replace('bg-emerald-500', 'bg-gray-500'); }
             let dbStr = localStorage.getItem(DB_KEY);
             if (dbStr) appDB = JSON.parse(dbStr);
-            else appDB = { PROPERTIES: [{ id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City', type: 'Rumah', buildingType: 'Tipe 60/90', description: 'Rumah minimalis 2 lantai.', brochureUrl: '', promoIds: [], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] }], VISITORS: [], AGENTS: [{ id: 1, name: 'Budi Hartono', role: 'Agent', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' }], PROMOS: [], USERS: [{ id: 1, username: 'admin', password: '123', name: 'Admin', role: 'superadmin' }], AGENCY: {name: 'PropertiHub', kprInterest: 5.5}, LOCATIONS: [], SEO: {} };
+            else appDB = { 
+                PROPERTIES: [{ id: 1, title: 'Cluster Modern Minimalis BSD', price: 'Rp. 1.850.000.000', dp: 'Rp. 185.000.000', allInCost: 'Rp. 20.000.000', location: 'BSD City', type: 'Rumah', buildingType: 'Tipe 60/90', description: 'Rumah minimalis 2 lantai.', brochureUrl: '', promoIds: [], image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80', images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80'] }], 
+                VISITORS: [], 
+                AGENTS: [{ id: 1, name: 'Budi Hartono', role: 'Agent', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' }], 
+                PROMOS: [], 
+                USERS: [{ id: 1, username: 'admin', password: '123', name: 'Admin', role: 'superadmin' }], 
+                AGENCY: {name: 'PropertiHub', kprInterest: 5.5}, 
+                LOCATIONS: [], 
+                SEO: {}, 
+                PROPERTY_TYPES: [
+                    {name: 'Rumah', icon: 'home'}, {name: 'Apartemen', icon: 'building-2'}, 
+                    {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
+                ]
+            };
         }
 
         function saveDB(newData) { 
@@ -809,25 +921,29 @@
             let tKeywords = seo.keywords || 'properti, rumah, apartemen, jual rumah, beli rumah, propertihub';
             let tImage = customData?.image || seo.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
 
-            // Document Tags
-            document.getElementById('page-title').innerText = tTitle;
-            document.getElementById('meta-desc').content = tDesc;
-            document.getElementById('meta-keywords').content = tKeywords;
-
-            // Open Graph Share Tags
-            document.getElementById('og-title').content = tTitle;
-            document.getElementById('og-desc').content = tDesc;
-            document.getElementById('og-image').content = tImage;
-            document.getElementById('og-url').content = window.location.href;
+            document.getElementById('page-title').innerText = tTitle; document.getElementById('meta-desc').content = tDesc; document.getElementById('meta-keywords').content = tKeywords;
+            document.getElementById('og-title').content = tTitle; document.getElementById('og-desc').content = tDesc; document.getElementById('og-image').content = tImage; document.getElementById('og-url').content = window.location.href;
         }
 
         function backupDatabase() { let blob = new Blob([JSON.stringify(appDB)], { type: "application/json" }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `PropertiHub_Backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
         function restoreDatabase(event) { let file = event.target.files[0]; if (!file) return; showModal("Yakin ingin merestore? Semua data saat ini akan tertimpa.", true, () => { showLoading(true); let reader = new FileReader(); reader.onload = function(e) { try { let parsedData = JSON.parse(e.target.result); if (parsedData && parsedData.PROPERTIES) { appDB = parsedData; saveDB(appDB); showLoading(false); showModal("Restore berhasil!"); navigate('screen-admin-settings'); } else throw new Error("Format salah"); } catch (err) { showLoading(false); showModal("Gagal membaca file JSON."); } }; reader.readAsText(file); }); event.target.value = ''; }
 
         // NAVIGATION
-        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-agents', 'screen-admin-login', 'screen-admin-dashboard', 'screen-admin-listing', 'screen-admin-property-form', 'screen-admin-detail', 'screen-admin-visitors', 'screen-admin-agents', 'screen-admin-agent-form', 'screen-admin-promos', 'screen-admin-promo-form', 'screen-admin-settings', 'screen-admin-seo', 'screen-admin-locations', 'screen-admin-location-form', 'screen-admin-agency', 'screen-admin-users', 'screen-admin-user-form'];
+        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents', 'screen-admin-login', 'screen-admin-dashboard', 'screen-admin-listing', 'screen-admin-property-form', 'screen-admin-detail', 'screen-admin-visitors', 'screen-admin-agents', 'screen-admin-agent-form', 'screen-admin-promos', 'screen-admin-promo-form', 'screen-admin-settings', 'screen-admin-seo', 'screen-admin-locations', 'screen-admin-location-form', 'screen-admin-agency', 'screen-admin-users', 'screen-admin-user-form', 'screen-admin-property-types', 'screen-admin-property-type-form'];
         
+        let previousScreen = 'screen-front-home'; // Default
+
         function navigate(targetScreen) {
+            // Track the previous screen if moving to detail
+            if (targetScreen === 'screen-front-detail') {
+                screens.forEach(screen => {
+                    let el = document.getElementById(screen);
+                    if (el && !el.classList.contains('hidden') && screen !== 'screen-front-detail') {
+                        previousScreen = screen;
+                    }
+                });
+            }
+
             screens.forEach(screen => { let el = document.getElementById(screen); if(el){ el.classList.add('hidden'); el.classList.remove('block'); } });
             document.getElementById(targetScreen).classList.remove('hidden'); document.getElementById(targetScreen).classList.add('block');
             
@@ -836,6 +952,7 @@
             else { document.getElementById('nav-front').classList.add('hidden'); document.getElementById('nav-admin').classList.add('hidden'); }
 
             if (targetScreen === 'screen-front-home') { applyDynamicSEO(); renderFrontHome(); } 
+            else if (targetScreen === 'screen-front-all-properties') { currentAllPropertiesPage = 1; applyDynamicSEO(); renderFrontAllProperties(); }
             else if (targetScreen === 'screen-front-search') { applyDynamicSEO(); initFrontSearch(); } 
             else if (targetScreen === 'screen-front-detail') { renderFrontDetail(); } 
             else if (targetScreen === 'screen-front-agents') { applyDynamicSEO(); renderFrontAgents(); } 
@@ -847,15 +964,20 @@
             else if (targetScreen === 'screen-admin-agency') renderAdminAgency(); 
             else if (targetScreen === 'screen-admin-seo') renderAdminSEO(); 
             else if (targetScreen === 'screen-admin-locations') renderAdminLocations(); 
+            else if (targetScreen === 'screen-admin-property-types') renderAdminPropertyTypes();
 
             document.querySelectorAll('.nav-front-btn, .nav-admin-btn').forEach(btn => btn.classList.remove('text-blue-600'));
-            if(targetScreen === 'screen-front-home') document.querySelectorAll('.nav-front-btn')[0].classList.add('text-blue-600');
+            if(targetScreen === 'screen-front-home' || targetScreen === 'screen-front-all-properties') document.querySelectorAll('.nav-front-btn')[0].classList.add('text-blue-600');
             if(targetScreen === 'screen-front-search') document.querySelectorAll('.nav-front-btn')[1].classList.add('text-blue-600');
             if(targetScreen === 'screen-front-agents') document.querySelectorAll('.nav-front-btn')[2].classList.add('text-blue-600');
             if(targetScreen === 'screen-admin-dashboard') document.querySelectorAll('.nav-admin-btn')[0].classList.add('text-blue-600');
             if(targetScreen === 'screen-admin-listing') document.querySelectorAll('.nav-admin-btn')[1].classList.add('text-blue-600');
             if(targetScreen === 'screen-admin-visitors') document.querySelectorAll('.nav-admin-btn')[2].classList.add('text-blue-600');
             lucide.createIcons(); window.scrollTo(0,0);
+        }
+        
+        function goBackFromDetail() {
+            navigate(previousScreen);
         }
 
         // SLIDER FOTO LOGIC
@@ -870,22 +992,117 @@
         function nextAdminDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex++; if (currentSlideIndex >= currentDetailImages.length) currentSlideIndex = 0; updateSlideView('admin'); }
         function prevAdminDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex--; if (currentSlideIndex < 0) currentSlideIndex = currentDetailImages.length - 1; updateSlideView('admin'); }
 
-        // FRONTEND
+        // MENGISI DROPDOWN JENIS PROPERTI DINAMIS
+        function populatePropertyTypesDropdowns() {
+            let html = '';
+            appDB.PROPERTY_TYPES.forEach(pt => { html += `<option value="${pt.name}">${pt.name}</option>`; });
+            let frontSel = document.getElementById('front-lead-type'); if(frontSel) frontSel.innerHTML = html;
+            let formSel = document.getElementById('form-type'); if(formSel) formSel.innerHTML = html;
+        }
+
+        // FRONTEND - HOME & ALL PROPERTIES
         function renderFrontHome() {
             let agencyName = appDB.AGENCY?.name || 'PropertiHub'; let nameParts = agencyName.split(' ');
             document.getElementById('front-agency-name').innerHTML = `${nameParts[0] || 'Properti'}<span class="text-orange-400">${nameParts[1] || 'Hub'}</span>`;
+            
             let promosContainer = document.getElementById('front-promos-container'); promosContainer.innerHTML = '';
             if (appDB.PROMOS.length > 0) {
                 let p = appDB.PROMOS[0];
                 promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50">Klaim Promo</button></div>`;
             }
+
+            // MENU JENIS PROPERTI
+            let typesGrid = document.getElementById('front-property-types-grid'); typesGrid.innerHTML = '';
+            const colorPalettes = [ {bg: 'bg-blue-100', text: 'text-blue-600'}, {bg: 'bg-orange-100', text: 'text-orange-600'}, {bg: 'bg-green-100', text: 'text-green-600'}, {bg: 'bg-amber-100', text: 'text-amber-600'}, {bg: 'bg-purple-100', text: 'text-purple-600'}, {bg: 'bg-cyan-100', text: 'text-cyan-600'}, {bg: 'bg-pink-100', text: 'text-pink-600'} ];
+            appDB.PROPERTY_TYPES.forEach((pt, idx) => {
+                let color = colorPalettes[idx % colorPalettes.length];
+                typesGrid.innerHTML += `<div onclick="navigate('screen-front-search')" class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-gray-50 transition-colors"><div class="p-3 rounded-full mb-2 ${color.bg} ${color.text}"><i data-lucide="${pt.icon || 'box'}" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800 text-center line-clamp-1">${pt.name}</span></div>`;
+            });
+
+            // LIMIT PROPERTI MAKSIMAL 3 DI HOME
             let propContainer = document.getElementById('front-properties-container'); propContainer.innerHTML = '';
-            appDB.PROPERTIES.forEach(prop => {
+            let displayProps = appDB.PROPERTIES.slice(0, 3);
+            displayProps.forEach(prop => {
                 let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
                 propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
             });
+
+            // TOMBOL LIHAT SEMUA
+            let viewAllBtn = document.getElementById('front-view-all-btn-container');
+            if (appDB.PROPERTIES.length > 3) {
+                viewAllBtn.classList.remove('hidden');
+            } else {
+                viewAllBtn.classList.add('hidden');
+            }
+
+            lucide.createIcons();
         }
 
+        // FUNGSI PAGINASI SEMUA PROPERTI
+        function renderFrontAllProperties() {
+            document.getElementById('front-all-properties-count').innerText = `${appDB.PROPERTIES.length} Listing Tersedia`;
+            let propContainer = document.getElementById('front-all-properties-container');
+            let paginationContainer = document.getElementById('front-all-properties-pagination');
+            
+            propContainer.innerHTML = '';
+            paginationContainer.innerHTML = '';
+            
+            if(appDB.PROPERTIES.length === 0) {
+                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Belum ada properti tersedia.</div>`;
+                return;
+            }
+
+            // Logika Paginasi
+            const totalPages = Math.ceil(appDB.PROPERTIES.length / PROPERTIES_PER_PAGE);
+            if (currentAllPropertiesPage > totalPages) currentAllPropertiesPage = totalPages || 1;
+            if (currentAllPropertiesPage < 1) currentAllPropertiesPage = 1;
+
+            const startIndex = (currentAllPropertiesPage - 1) * PROPERTIES_PER_PAGE;
+            const endIndex = startIndex + PROPERTIES_PER_PAGE;
+            const currentProperties = appDB.PROPERTIES.slice(startIndex, endIndex);
+
+            // Render Properti sesuai Halaman
+            currentProperties.forEach(prop => {
+                let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
+                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
+            });
+
+            // Render Tombol Paginasi jika lebih dari 1 halaman
+            if (totalPages > 1) {
+                // Tombol Prev
+                let prevBtn = document.createElement('button');
+                prevBtn.innerHTML = '<i data-lucide="chevron-left" class="h-4 w-4"></i>';
+                prevBtn.className = `p-2 rounded-xl border transition-colors ${currentAllPropertiesPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
+                prevBtn.onclick = () => { if(currentAllPropertiesPage > 1) goToAllPropertiesPage(currentAllPropertiesPage - 1); };
+                paginationContainer.appendChild(prevBtn);
+
+                // Angka Halaman
+                for (let i = 1; i <= totalPages; i++) {
+                    let pageBtn = document.createElement('button');
+                    pageBtn.innerText = i;
+                    pageBtn.className = `w-10 h-10 flex justify-center items-center rounded-xl text-xs font-bold border transition-all ${currentAllPropertiesPage === i ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 shadow-sm'}`;
+                    pageBtn.onclick = () => goToAllPropertiesPage(i);
+                    paginationContainer.appendChild(pageBtn);
+                }
+
+                // Tombol Next
+                let nextBtn = document.createElement('button');
+                nextBtn.innerHTML = '<i data-lucide="chevron-right" class="h-4 w-4"></i>';
+                nextBtn.className = `p-2 rounded-xl border transition-colors ${currentAllPropertiesPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
+                nextBtn.onclick = () => { if(currentAllPropertiesPage < totalPages) goToAllPropertiesPage(currentAllPropertiesPage + 1); };
+                paginationContainer.appendChild(nextBtn);
+            }
+
+            lucide.createIcons();
+        }
+
+        function goToAllPropertiesPage(page) {
+            currentAllPropertiesPage = page;
+            renderFrontAllProperties();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // FRONTEND - DETAIL
         function renderFrontDetail() {
             let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId)); if(!prop) return navigate('screen-front-home');
             applyDynamicSEO({ title: `${prop.title} | PropertiHub`, description: prop.description, image: prop.image });
@@ -939,6 +1156,7 @@
             let promoSelect = document.getElementById('front-lead-promo');
             if(promoSelect) { promoSelect.innerHTML = '<option value="-">Tanpa Promo Khusus</option>'; appDB.PROMOS.forEach(p => promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`); }
             populateLocationDropdowns('front-lead-city', 'front-lead-district');
+            populatePropertyTypesDropdowns();
         }
 
         function populateLocationDropdowns(cId, dId) {
@@ -965,7 +1183,7 @@
             if(user) { currentUser = user; document.getElementById('admin-error').classList.add('hidden'); document.getElementById('dashboard-greeting').innerText = `Halo, ${user.name}`; navigate('screen-admin-dashboard'); } 
             else document.getElementById('admin-error').classList.remove('hidden');
         }
-        function logoutAdmin() { currentUser = null; navigate('screen-front-home'); }
+        function logoutAdmin() { currentUser = null; navigate('screen-front-search'); }
 
         // ADMIN DASHBOARD CHART
         function renderDashboardChart() {
@@ -992,24 +1210,85 @@
         function deleteProperty(id) { showModal("Hapus properti ini?", true, () => { appDB.PROPERTIES = appDB.PROPERTIES.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminProperties(); }); }
 
         function toggleBulkUpload() { document.getElementById('admin-bulk-upload-section').classList.toggle('hidden'); }
-        function downloadBulkTemplate() { const data = [ ["Judul Properti", "Harga Asli", "DP", "Biaya Terima Kunci", "Kota/Kabupaten", "Kecamatan/Area", "Tipe Properti", "Tipe Ukuran Bangunan", "URL Gambar", "Deskripsi Lengkap", "URL Brosur"], ["Cluster Modern Indah", "Rp. 1.000.000.000", "Rp. 100.000.000", "Rp. 25.000.000", "Tangerang", "BSD City", "Rumah", "Tipe 36/60", "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80", "Rumah modern minimalis.", "https://drive.google.com/brosur"] ]; const ws = XLSX.utils.aoa_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template"); XLSX.writeFile(wb, "Template_Properti_Massal.xlsx"); }
+        
+        function downloadBulkTemplate() { 
+            const data = [ 
+                ["Judul Properti", "Harga Asli", "DP", "Biaya Terima Kunci", "Kota/Kabupaten", "Kecamatan/Area", "Tipe Properti", "Tipe Ukuran Bangunan", "URL Gambar (Pisahkan koma jika > 1)", "Deskripsi Lengkap", "URL Brosur"], 
+                ["Cluster Modern Indah", "Rp. 1.000.000.000", "Rp. 100.000.000", "Rp. 25.000.000", "Tangerang", "BSD City", "Rumah", "Tipe 36/60", "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80, https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80", "Rumah modern minimalis.", "https://drive.google.com/brosur"] 
+            ]; 
+            const ws = XLSX.utils.aoa_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template"); XLSX.writeFile(wb, "Template_Properti_Massal.xlsx"); 
+        }
+
         function handleBulkUpload() {
             const file = document.getElementById('bulk-excel-file').files[0]; if (!file) return showModal("Pilih file Excel!"); showLoading(true); const reader = new FileReader();
-            reader.onload = function(e) { try { const rows = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1}); if(rows.length < 2) { showLoading(false); return showModal("File kosong."); } let count = 0;
-                for (let i = 1; i < rows.length; i++) { const v = rows[i]; if (!v || !v[0]) continue; let city = v[4]?String(v[4]).trim():''; let dist = v[5]?String(v[5]).trim():''; appDB.PROPERTIES.unshift({ id: Date.now() + i, title: v[0]?String(v[0]).trim():'', price: v[1]?String(v[1]).trim():'', dp: v[2]?String(v[2]).trim():'', allInCost: v[3]?String(v[3]).trim():'', location: dist?`${dist}, ${city}`:city||'Bebas', type: v[6]?String(v[6]).trim():'Rumah', buildingType: v[7]?String(v[7]).trim():'', image: v[8]?String(v[8]).trim():'', images: [v[8]?String(v[8]).trim():''], description: v[9]?String(v[9]).trim():'', brochureUrl: v[10]?String(v[10]).trim():'', promoIds: [] }); count++; }
-                showLoading(false); if(count>0){ saveDB(appDB); showModal(`Sukses! ${count} properti ditambahkan.`); toggleBulkUpload(); renderAdminProperties(); } else showModal("Gagal. Baris tidak valid."); } catch(err) { showLoading(false); showModal("Error format Excel."); }
-            }; reader.readAsArrayBuffer(file);
+            reader.onload = function(e) { 
+                try { 
+                    const rows = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1}); 
+                    if(rows.length < 2) { showLoading(false); return showModal("File kosong."); } 
+                    let count = 0;
+                    
+                    for (let i = 1; i < rows.length; i++) { 
+                        const v = rows[i]; if (!v || !v[0]) continue; 
+                        let city = v[4]?String(v[4]).trim():''; 
+                        let dist = v[5]?String(v[5]).trim():''; 
+                        
+                        let rawImages = v[8] ? String(v[8]).split(',').map(x => x.trim()).filter(x => x) : [];
+                        let fallbackImg = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
+                        let finalImages = rawImages.length > 0 ? rawImages : [fallbackImg];
+                        
+                        appDB.PROPERTIES.unshift({ 
+                            id: Date.now() + i, 
+                            title: v[0]?String(v[0]).trim():'', 
+                            price: v[1]?String(v[1]).trim():'', 
+                            dp: v[2]?String(v[2]).trim():'', 
+                            allInCost: v[3]?String(v[3]).trim():'', 
+                            location: dist?`${dist}, ${city}`:city||'Bebas', 
+                            type: v[6]?String(v[6]).trim():'Rumah', 
+                            buildingType: v[7]?String(v[7]).trim():'', 
+                            image: finalImages[0], 
+                            images: finalImages, 
+                            description: v[9]?String(v[9]).trim():'', 
+                            brochureUrl: v[10]?String(v[10]).trim():'', 
+                            promoIds: [] 
+                        }); 
+                        count++; 
+                    }
+                    showLoading(false); 
+                    if(count>0){ saveDB(appDB); showModal(`Sukses! ${count} properti ditambahkan.`); toggleBulkUpload(); renderAdminProperties(); } 
+                    else showModal("Gagal. Baris tidak valid."); 
+                } catch(err) { showLoading(false); showModal("Error format Excel."); }
+            }; 
+            reader.readAsArrayBuffer(file);
         }
 
         function addImageInput(value = '') { let container = document.getElementById('form-image-container'); let div = document.createElement('div'); div.className = 'flex gap-2 items-center'; div.innerHTML = `<input type="text" placeholder="https://..." value="${value}" class="form-image-input w-full bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm font-medium" /><button onclick="this.parentElement.remove()" class="p-3 bg-red-50 text-red-600 rounded-xl"><i data-lucide="x" class="h-4 w-4"></i></button>`; container.appendChild(div); lucide.createIcons(); }
-        function openPropertyForm() { editingPropertyId=null; document.getElementById('admin-form-title').innerText='Tambah Properti'; ['form-title','form-price','form-dp','form-allincost','form-building-type','form-description', 'form-brochure'].forEach(id=>document.getElementById(id).value=''); document.getElementById('form-image-container').innerHTML=''; addImageInput(''); populateLocationDropdowns('form-city', 'form-district'); renderAdminPromos(); navigate('screen-admin-property-form'); }
+        
+        function openPropertyForm() { 
+            editingPropertyId = null; document.getElementById('admin-form-title').innerText='Tambah Properti'; 
+            ['form-title','form-price','form-dp','form-allincost','form-building-type','form-description', 'form-brochure'].forEach(id=>document.getElementById(id).value=''); 
+            document.getElementById('form-image-container').innerHTML=''; addImageInput(''); 
+            populatePropertyTypesDropdowns();
+            populateLocationDropdowns('form-city', 'form-district'); renderAdminPromos(); 
+            navigate('screen-admin-property-form'); 
+        }
+
         function editProperty(id) { 
-            let p = appDB.PROPERTIES.find(x=>String(x.id)===String(id)); if(!p) return; editingPropertyId=id; document.getElementById('admin-form-title').innerText='Edit Properti'; document.getElementById('form-title').value=p.title; document.getElementById('form-price').value=p.price||''; document.getElementById('form-dp').value=p.dp||''; document.getElementById('form-allincost').value=p.allInCost||''; document.getElementById('form-building-type').value=p.buildingType||''; document.getElementById('form-description').value=p.description||''; document.getElementById('form-brochure').value=p.brochureUrl||''; document.getElementById('form-image-container').innerHTML=''; 
-            if(p.images && p.images.length>0) p.images.forEach(img=>addImageInput(img)); else addImageInput(p.image); 
-            populateLocationDropdowns('form-city', 'form-district'); renderAdminPromos();
+            let p = appDB.PROPERTIES.find(x=>String(x.id)===String(id)); if(!p) return; 
+            editingPropertyId = id; document.getElementById('admin-form-title').innerText='Edit Properti'; 
+            document.getElementById('form-title').value = p.title; document.getElementById('form-price').value = p.price||''; document.getElementById('form-dp').value = p.dp||''; document.getElementById('form-allincost').value = p.allInCost||''; document.getElementById('form-building-type').value = p.buildingType||''; document.getElementById('form-description').value = p.description||''; document.getElementById('form-brochure').value = p.brochureUrl||''; 
+            
+            document.getElementById('form-image-container').innerHTML = ''; 
+            if(p.images && p.images.length > 0) p.images.forEach(img => addImageInput(img)); else addImageInput(p.image); 
+            
+            populatePropertyTypesDropdowns();
+            document.getElementById('form-type').value = p.type || (appDB.PROPERTY_TYPES[0]?.name || 'Rumah');
+
+            populateLocationDropdowns('form-city', 'form-district'); 
+            renderAdminPromos();
             setTimeout(() => { document.querySelectorAll('.form-promo-cb').forEach(cb => { cb.checked = (p.promoIds && p.promoIds.includes(parseInt(cb.value))); }); }, 100);
             navigate('screen-admin-property-form'); 
         }
+
         function handleSaveProperty() {
             let t=document.getElementById('form-title').value; if(!t) return showModal("Judul wajib!");
             let imgs=[]; document.querySelectorAll('.form-image-input').forEach(i=>{if(i.value.trim()!=='')imgs.push(i.value.trim())}); if(imgs.length===0) imgs.push('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80');
@@ -1058,6 +1337,62 @@
         function handleSaveLocation() { let city = document.getElementById('form-loc-city').value; if(!city) return showModal("Kota wajib diisi!"); let dist = document.getElementById('form-loc-districts').value.split(',').map(x => x.trim()).filter(x => x); let data = { city: city, districts: dist }; if(editingLocationId) { let i = appDB.LOCATIONS.findIndex(x => String(x.id) === String(editingLocationId)); if(i !== -1) appDB.LOCATIONS[i] = {...appDB.LOCATIONS[i], ...data}; } else { data.id = Date.now(); appDB.LOCATIONS.push(data); } saveDB(appDB); navigate('screen-admin-locations'); }
         function deleteLocation(id) { showModal("Hapus lokasi ini?", true, () => { appDB.LOCATIONS = appDB.LOCATIONS.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminLocations(); }); }
         function renderAdminLocations() { let c = document.getElementById('admin-locations-container'); c.innerHTML=''; appDB.LOCATIONS.forEach(l => { c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex justify-between items-center"><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${l.city}</h4><p class="text-[10px] text-gray-500 line-clamp-1">${(l.districts||[]).join(', ')}</p></div><div class="flex gap-1"><button onclick="editLocation('${l.id}')" class="p-2 text-gray-500 hover:text-blue-600 transition-colors"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deleteLocation('${l.id}')" class="p-2 text-red-500 hover:text-red-700 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); lucide.createIcons(); }
+
+        // ADMIN PROPERTY TYPES
+        function renderAdminPropertyTypes() {
+            let c = document.getElementById('admin-property-types-container'); c.innerHTML = '';
+            appDB.PROPERTY_TYPES.forEach((pt, index) => {
+                c.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gray-100 p-2 rounded-lg text-gray-600"><i data-lucide="${pt.icon || 'box'}" class="h-5 w-5"></i></div>
+                            <span class="font-bold text-sm text-gray-900">${pt.name}</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editPropertyType(${index})" class="p-2 text-gray-500 hover:text-blue-600 transition-colors"><i data-lucide="edit" class="h-4 w-4"></i></button>
+                            <button onclick="deletePropertyType(${index})" class="p-2 text-red-500 hover:text-red-700 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+        function openPropertyTypeForm() {
+            editingPropertyTypeIndex = null;
+            document.getElementById('admin-property-type-form-title').innerText = 'Tambah Jenis Properti';
+            document.getElementById('form-property-type-name').value = '';
+            document.getElementById('form-property-type-icon').value = '';
+            navigate('screen-admin-property-type-form');
+        }
+        function editPropertyType(index) {
+            editingPropertyTypeIndex = index;
+            document.getElementById('admin-property-type-form-title').innerText = 'Edit Jenis Properti';
+            document.getElementById('form-property-type-name').value = appDB.PROPERTY_TYPES[index].name;
+            document.getElementById('form-property-type-icon').value = appDB.PROPERTY_TYPES[index].icon || '';
+            navigate('screen-admin-property-type-form');
+        }
+        function handleSavePropertyType() {
+            let name = document.getElementById('form-property-type-name').value.trim();
+            let icon = document.getElementById('form-property-type-icon').value.trim() || 'home';
+            if(!name) return showModal("Nama jenis properti wajib diisi!");
+            
+            let data = { name: name, icon: icon };
+
+            if(editingPropertyTypeIndex !== null) {
+                appDB.PROPERTY_TYPES[editingPropertyTypeIndex] = data;
+            } else {
+                appDB.PROPERTY_TYPES.push(data);
+            }
+            saveDB(appDB); populatePropertyTypesDropdowns();
+            navigate('screen-admin-property-types');
+        }
+        function deletePropertyType(index) {
+            showModal("Hapus jenis properti ini?", true, () => {
+                appDB.PROPERTY_TYPES.splice(index, 1);
+                saveDB(appDB); populatePropertyTypesDropdowns();
+                renderAdminPropertyTypes();
+            });
+        }
 
         // ADMIN AGENCY & SEO
         function renderAdminAgency() { document.getElementById('form-agency-name').value = appDB.AGENCY?.name || ''; document.getElementById('form-agency-phone').value = appDB.AGENCY?.phone || ''; document.getElementById('form-agency-address').value = appDB.AGENCY?.address || ''; document.getElementById('form-agency-kpr').value = appDB.AGENCY?.kprInterest || 5.5; }
