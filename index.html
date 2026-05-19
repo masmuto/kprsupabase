@@ -794,7 +794,7 @@
         // ====================================================================
         // KREDENSIAL SUPABASE (HARDCODE DI SINI)
         // ====================================================================
-         const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
+        const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduY2dnZ2RxeWx0emtieG9iY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjk5NjgsImV4cCI6MjA5NDYwNTk2OH0.UJvjQBhrT0Ju7-MlUcJPKZAzPLmvmbl5k7mBoadCR_E';
         // ====================================================================
 
@@ -1069,14 +1069,12 @@
 
             // Render Tombol Paginasi jika lebih dari 1 halaman
             if (totalPages > 1) {
-                // Tombol Prev
                 let prevBtn = document.createElement('button');
                 prevBtn.innerHTML = '<i data-lucide="chevron-left" class="h-4 w-4"></i>';
                 prevBtn.className = `p-2 rounded-xl border transition-colors ${currentAllPropertiesPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
                 prevBtn.onclick = () => { if(currentAllPropertiesPage > 1) goToAllPropertiesPage(currentAllPropertiesPage - 1); };
                 paginationContainer.appendChild(prevBtn);
 
-                // Angka Halaman
                 for (let i = 1; i <= totalPages; i++) {
                     let pageBtn = document.createElement('button');
                     pageBtn.innerText = i;
@@ -1085,7 +1083,6 @@
                     paginationContainer.appendChild(pageBtn);
                 }
 
-                // Tombol Next
                 let nextBtn = document.createElement('button');
                 nextBtn.innerHTML = '<i data-lucide="chevron-right" class="h-4 w-4"></i>';
                 nextBtn.className = `p-2 rounded-xl border transition-colors ${currentAllPropertiesPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
@@ -1305,8 +1302,48 @@
             navigate('screen-admin-detail');
         }
 
-        // ADMIN LEADS
-        function renderAdminVisitors() { document.getElementById('admin-count-visitors').innerText = appDB.VISITORS.length; let c = document.getElementById('admin-visitors-container'); c.innerHTML=''; appDB.VISITORS.forEach(v => { c.innerHTML += `<div class="bg-white p-4 rounded-xl border mb-3"><h4 class="font-bold text-sm">${v.name}</h4><p class="text-xs text-gray-500">${v.phone} • ${v.type}</p></div>`; }); }
+        // ADMIN LEADS (DIKEMBALIKAN SEPERTI v1.6 DENGAN TOMBOL WA)
+        function renderAdminVisitors() { 
+            document.getElementById('admin-count-visitors').innerText = appDB.VISITORS.length; 
+            let c = document.getElementById('admin-visitors-container'); 
+            c.innerHTML = ''; 
+            
+            let agencyName = appDB.AGENCY?.name || 'PropertiHub';
+
+            appDB.VISITORS.forEach(v => { 
+                let cleanPhone = v.phone.replace(/[^0-9]/g, '');
+                // Pastikan kode negara +62 untuk WA
+                if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
+
+                let msg = encodeURIComponent(`Halo ${v.name}, saya admin dari ${agencyName}. Anda sebelumnya mencari properti tipe ${v.type} di daerah ${v.location}. Ada yang bisa dibantu?`);
+                let waLink = `https://wa.me/${cleanPhone}?text=${msg}`;
+
+                c.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-3 mb-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-900">${v.name}</h4>
+                                <p class="text-[10px] text-gray-500">${v.date || '-'}</p>
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold border border-blue-100">${v.type}</span>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs text-gray-600 grid grid-cols-2 gap-2">
+                            <div class="col-span-2 flex"><span class="w-20 text-gray-400 font-medium">No. HP</span><span class="font-bold text-gray-800">${v.phone}</span></div>
+                            <div class="col-span-2 flex"><span class="w-20 text-gray-400 font-medium">Lokasi</span><span class="font-semibold text-gray-800">${v.location || '-'}</span></div>
+                            <div class="flex flex-col"><span class="text-[9px] text-gray-400 font-medium">Tipe / Ukuran</span><span class="font-semibold text-gray-800">${v.building || '-'}</span></div>
+                            <div class="flex flex-col"><span class="text-[9px] text-gray-400 font-medium">Max DP</span><span class="font-semibold text-gray-800">${v.dp || '-'}</span></div>
+                            <div class="col-span-2 flex flex-col mt-1"><span class="text-[9px] text-gray-400 font-medium">Promo Dipilih</span><span class="font-semibold text-orange-600">${v.promo || '-'}</span></div>
+                        </div>
+                        
+                        <a href="${waLink}" target="_blank" class="w-full bg-[#25D366] text-white py-2.5 rounded-xl text-xs font-bold text-center shadow-sm hover:bg-[#20bd5a] transition flex justify-center items-center gap-1.5">
+                            <i data-lucide="message-circle" class="h-4 w-4"></i> Hubungi WA
+                        </a>
+                    </div>
+                `; 
+            }); 
+            lucide.createIcons();
+        }
         function downloadCSV() { let csv = "Tanggal,Nama,No HP,Tipe Properti,Ukuran,Lokasi,DP,Promo\n"; appDB.VISITORS.forEach(v => csv += `"${v.date}","${v.name}","${v.phone}","${v.type}","${v.building}","${v.location}","${v.dp}","${v.promo}"\n`); let blob = new Blob([csv], { type: 'text/csv' }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Leads_PropertiHub.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
 
         // ADMIN AGENTS
