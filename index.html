@@ -21,10 +21,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <!-- SUPABASE JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style> 
@@ -84,13 +81,9 @@
 
     <div id="app-container" class="w-full max-w-[430px] min-h-screen bg-gray-50 relative overflow-x-hidden sm:border-x sm:border-gray-300 shadow-2xl">
 
-        <!-- ========================================== -->
-        <!-- FRONTEND SCREENS                             -->
-        <!-- ========================================== -->
-
         <div id="screen-front-search" class="hidden relative min-h-screen flex-col justify-end bg-gray-900 pb-24">
             <div class="absolute inset-0 z-0">
-                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Background" class="w-full h-full object-cover opacity-40" />
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" onerror="this.src='https://placehold.co/800x1200/1e293b/ffffff?text=PropertiHub'" alt="Background" class="w-full h-full object-cover opacity-40" />
             </div>
             <div class="relative z-10 w-full px-5 pt-20">
                 <div class="flex items-center justify-between mb-6">
@@ -110,7 +103,6 @@
                       <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
                         <i data-lucide="building-2" class="h-5 w-5 text-gray-400 mr-3"></i>
                         <select id="front-lead-type" class="bg-transparent w-full outline-none text-sm font-medium">
-                          <!-- Dimuat dinamis oleh appDB.PROPERTY_TYPES -->
                         </select>
                       </div>
                    </div>
@@ -189,7 +181,7 @@
 
             <div class="relative pt-24 pb-12 flex items-center min-h-[380px] rounded-b-[2rem] overflow-hidden shadow-sm">
                 <div class="absolute inset-0 z-0">
-                    <img id="front-hero-image" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Hero" class="w-full h-full object-cover filter brightness-[0.4]" />
+                    <img id="front-hero-image" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" onerror="this.src='https://placehold.co/800x600/1e293b/ffffff?text=Hero'" alt="Hero" class="w-full h-full object-cover filter brightness-[0.4]" />
                 </div>
                 <div class="relative z-10 px-5 w-full text-left">
                     <h1 class="text-3xl font-bold text-white mb-3 leading-tight">Temukan Hunian <br/><span class="text-orange-400">Impian Anda</span></h1>
@@ -212,40 +204,44 @@
                 </div>
                 <div id="front-properties-container" class="flex flex-col gap-5"></div>
                 
-                <!-- TOMBOL LIHAT SEMUA PROPERTI -->
+                <!-- TOMBOL LIHAT SEMUA PROPERTI (Reset Filter) -->
                 <div id="front-view-all-btn-container" class="mt-6 text-center hidden">
-                    <button onclick="navigate('screen-front-all-properties')" class="w-full bg-white text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                    <button onclick="currentSearchFilters = null; navigate('screen-front-all-properties')" class="w-full bg-white text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
                         Lihat Semua Properti <i data-lucide="arrow-right" class="h-4 w-4"></i>
                     </button>
                 </div>
             </section>
         </div>
 
-        <!-- NEW SCREEN: SEMUA PROPERTI (DENGAN PAGINASI) -->
         <div id="screen-front-all-properties" class="hidden min-h-screen bg-gray-50 pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center sticky top-0 z-50">
                 <div class="flex items-center gap-3">
                     <button onclick="navigate('screen-front-home')" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
                     <div>
-                        <h1 class="font-bold text-lg leading-tight">Semua Properti</h1>
+                        <h1 id="front-all-properties-title" class="font-bold text-lg leading-tight">Semua Properti</h1>
                         <p class="text-[10px] text-blue-200" id="front-all-properties-count">0 Listing Tersedia</p>
                     </div>
                 </div>
                 <button onclick="toggleDarkMode()" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
             </div>
             
+            <div id="front-filter-indicator" class="hidden px-5 pt-4">
+                <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                    <span class="text-xs text-blue-700 font-bold flex items-center gap-2"><i data-lucide="filter" class="h-4 w-4"></i> Hasil Pencarian</span>
+                    <button onclick="clearSearchFilters()" class="text-xs text-red-500 font-bold hover:underline">Hapus Filter</button>
+                </div>
+            </div>
+
             <div class="py-6 px-5">
                 <div id="front-all-properties-container" class="flex flex-col gap-5 mb-8"></div>
                 
-                <!-- PAGINATION CONTAINER -->
                 <div id="front-all-properties-pagination" class="flex justify-center items-center gap-2 flex-wrap"></div>
             </div>
         </div>
 
         <div id="screen-front-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
-            <!-- IMAGE CAROUSEL SECTION -->
             <div class="relative h-[350px] w-full group">
-                <img id="front-detail-image" src="" class="w-full h-full object-cover transition-all duration-300" />
+                <img id="front-detail-image" src="" onerror="this.src='https://placehold.co/800x600/e2e8f0/94a3b8?text=No+Image'" class="w-full h-full object-cover transition-all duration-300" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"></div>
                 
                 <div class="absolute top-5 left-5 right-5 flex justify-between items-center z-20">
@@ -284,7 +280,6 @@
                     <button id="front-desc-toggle" onclick="toggleDesc()" class="text-blue-600 text-xs font-bold mt-2 hover:underline">Baca Selengkapnya</button>
                 </div>
                 
-                <!-- BROSUR BUTTON -->
                 <a id="front-detail-brochure" href="#" target="_blank" class="hidden mt-4 w-full bg-indigo-50 text-indigo-600 border border-indigo-100 py-3 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-indigo-100 transition shadow-sm">
                     <i data-lucide="file-down" class="h-5 w-5"></i> Download Brosur Lengkap
                 </a>
@@ -311,7 +306,7 @@
 
             <div class="fixed bottom-0 w-full max-w-[430px] bg-white border-t border-gray-200 z-50 p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] rounded-t-2xl flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2 flex-1">
-                    <img id="front-agent-image" src="" alt="Agent" class="w-10 h-10 rounded-full object-cover border-2 border-gray-100 shadow-sm" />
+                    <img id="front-agent-image" src="" onerror="this.src='https://placehold.co/100x100/e2e8f0/94a3b8?text=Ag'" alt="Agent" class="w-10 h-10 rounded-full object-cover border-2 border-gray-100 shadow-sm" />
                     <div class="flex flex-col"><span id="front-agent-role" class="text-[10px] text-gray-500 leading-none mb-1">Agen</span><span id="front-agent-name" class="text-xs font-bold text-gray-900 leading-none">Nama Agen</span></div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -345,7 +340,7 @@
 
 
         <!-- ========================================== -->
-        <!-- ADMIN SCREENS                                -->
+        <!-- ADMIN SCREENS                              -->
         <!-- ========================================== -->
 
         <div id="screen-admin-login" class="hidden relative min-h-screen flex-col justify-center bg-gray-50 px-5">
@@ -355,7 +350,7 @@
                     <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200"><i data-lucide="shield-check" class="h-8 w-8 text-white"></i></div>
                 </div>
                 <h1 class="text-2xl font-bold text-center text-gray-900 mb-2">Admin Panel</h1>
-                
+                <p class="text-sm text-center text-gray-500 mb-8">Login: <b>admin/123</b> atau <b>agen/123</b></p>
                 <div id="admin-error" class="hidden bg-red-50 text-red-500 text-xs p-3 rounded-xl mb-4 border border-red-100 text-center font-medium">Username atau password salah!</div>
                 <div class="flex flex-col gap-4">
                     <div>
@@ -400,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- CHART SECTION RESTORED -->
             <div class="px-5 mt-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="text-sm font-bold text-gray-900 mb-3">Statistik Leads Mingguan</h3>
@@ -457,7 +451,25 @@
                     </div>
                 </div>
 
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-5">
+                    <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center gap-1.5"><i data-lucide="filter" class="h-3 w-3"></i> Filter Listing</h3>
+                    <div class="flex flex-col gap-3">
+                        <select id="admin-filter-type" onchange="currentAdminListPage=1; renderAdminProperties()" class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs font-medium w-full appearance-none">
+                            <option value="">Semua Jenis Properti</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <select id="admin-filter-city" onchange="updateDistrictDropdown('admin-filter-city', 'admin-filter-district'); currentAdminListPage=1; renderAdminProperties()" class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs font-medium w-full appearance-none">
+                                <option value="">Semua Kota</option>
+                            </select>
+                            <select id="admin-filter-district" onchange="currentAdminListPage=1; renderAdminProperties()" class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs font-medium w-full appearance-none">
+                                <option value="">Semua Kecamatan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="admin-properties-container" class="flex flex-col gap-3"></div>
+                <div id="admin-properties-pagination" class="flex justify-center items-center gap-2 flex-wrap mt-6 mb-2"></div>
             </div>
         </div>
 
@@ -508,7 +520,7 @@
 
         <div id="screen-admin-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
             <div class="relative h-[300px] w-full group">
-                <img id="admin-detail-image" src="" class="w-full h-full object-cover transition-all duration-300" />
+                <img id="admin-detail-image" src="" onerror="this.src='https://placehold.co/800x600/e2e8f0/94a3b8?text=No+Image'" class="w-full h-full object-cover transition-all duration-300" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"></div>
                 
                 <div class="absolute top-5 left-5 right-5 flex justify-between items-center z-20">
@@ -619,7 +631,6 @@
                     <button onclick="navigate('screen-admin-agency')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
                         <div class="bg-blue-100 p-3 rounded-full text-blue-600"><i data-lucide="building"></i></div><div class="flex-1"><h3 class="font-bold text-sm text-gray-900">Profil Agensi</h3><p class="text-[10px] text-gray-500">Ubah nama, alamat, dan kontak.</p></div><i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
-                    <!-- MENU JENIS PROPERTI CUSTOM -->
                     <button onclick="navigate('screen-admin-property-types')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:bg-gray-50 text-left transition-colors">
                         <div class="bg-cyan-100 p-3 rounded-full text-cyan-600"><i data-lucide="layers"></i></div><div class="flex-1"><h3 class="font-bold text-sm text-gray-900">Jenis Properti</h3><p class="text-[10px] text-gray-500">Custom tipe, icon Rumah, Apartemen, dll.</p></div><i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                     </button>
@@ -643,7 +654,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3 mb-3">
                     <button onclick="backupDatabase()" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:bg-gray-50 transition-colors">
                         <div class="bg-green-100 p-3 rounded-full text-green-600"><i data-lucide="download"></i></div><div class="text-center"><h3 class="font-bold text-xs text-gray-900">Backup Data</h3><p class="text-[9px] text-gray-500 mt-1">Unduh .json</p></div>
                     </button>
@@ -652,10 +663,56 @@
                     </button>
                     <input type="file" id="restore-file" accept=".json" class="hidden" onchange="restoreDatabase(event)" />
                 </div>
+
+                <button onclick="navigate('screen-admin-clear-db')" class="w-full bg-white p-4 rounded-2xl shadow-sm border border-red-200 flex items-center justify-center gap-3 hover:bg-red-50 transition-colors">
+                    <div class="bg-red-100 p-2.5 rounded-full text-red-600"><i data-lucide="trash-2" class="h-5 w-5"></i></div>
+                    <div class="text-left"><h3 class="font-bold text-sm text-red-700">Kosongkan Database</h3><p class="text-[10px] text-red-500 mt-0.5">Pilih dan hapus data tabel spesifik</p></div>
+                </button>
             </div>
         </div>
 
-        <!-- NEW SCREENS FOR PROPERTY TYPES -->
+        <div id="screen-admin-clear-db" class="hidden min-h-screen pb-24 flex flex-col">
+            <div class="bg-red-600 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
+                <button onclick="navigate('screen-admin-settings')" class="p-2 bg-white/20 rounded-full hover:bg-white/30"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
+                <h1 class="font-bold text-lg">Kosongkan Data</h1>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+                <div class="bg-red-50 border border-red-200 p-4 rounded-2xl text-red-800 text-xs leading-relaxed">
+                    <i data-lucide="alert-triangle" class="h-5 w-5 mb-2 text-red-600"></i>
+                    <b>Peringatan:</b> Data yang Anda hapus di sini bersifat permanen dan tidak dapat dikembalikan. Pastikan Anda sudah mem-backup data terlebih dahulu.
+                </div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3">
+                    <h3 class="text-sm font-bold text-gray-900 mb-2">Pilih Tabel yang Akan Dihapus:</h3>
+                    
+                    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" id="clear-tb-properties" value="PROPERTIES" class="w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-semibold text-gray-700 flex-1">Data Properti / Listing</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" id="clear-tb-visitors" value="VISITORS" class="w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-semibold text-gray-700 flex-1">Data Leads / Pengunjung</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" id="clear-tb-agents" value="AGENTS" class="w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-semibold text-gray-700 flex-1">Data Agen Tim</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" id="clear-tb-promos" value="PROMOS" class="w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-semibold text-gray-700 flex-1">Data Promo & Penawaran</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" id="clear-tb-locations" value="LOCATIONS" class="w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-semibold text-gray-700 flex-1">Data Kota & Lokasi</span>
+                    </label>
+
+                    <button onclick="handleClearDatabase()" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold mt-4 shadow-lg flex justify-center items-center gap-2 hover:bg-red-700 transition">
+                        <i data-lucide="trash-2" class="h-5 w-5"></i> Hapus Data Terpilih
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="screen-admin-property-types" class="hidden min-h-screen pb-24">
             <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -696,7 +753,6 @@
                 </div>
             </div>
         </div>
-        <!-- END NEW SCREENS -->
 
         <div id="screen-admin-seo" class="hidden min-h-screen pb-24 flex flex-col">
             <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex items-center gap-3">
@@ -813,9 +869,11 @@
         let chartInstance = null; let supabaseClient = null; let isUsingCloud = false;
         let currentDetailImages = []; let currentSlideIndex = 0;
         
-        // VARIABEL UNTUK PAGINASI
-        let currentAllPropertiesPage = 1;
+        // VARIABEL UNTUK PAGINASI & FILTER PENCARIAN
+        let currentAllPropertiesPage = 1; let currentSearchFilters = null;
         const PROPERTIES_PER_PAGE = 5;
+        let currentAdminListPage = 1;
+        const ADMIN_PROPERTIES_PER_PAGE = 7;
 
         // UI & UTILITIES
         function initTheme() {
@@ -928,8 +986,34 @@
         function backupDatabase() { let blob = new Blob([JSON.stringify(appDB)], { type: "application/json" }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `PropertiHub_Backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
         function restoreDatabase(event) { let file = event.target.files[0]; if (!file) return; showModal("Yakin ingin merestore? Semua data saat ini akan tertimpa.", true, () => { showLoading(true); let reader = new FileReader(); reader.onload = function(e) { try { let parsedData = JSON.parse(e.target.result); if (parsedData && parsedData.PROPERTIES) { appDB = parsedData; saveDB(appDB); showLoading(false); showModal("Restore berhasil!"); navigate('screen-admin-settings'); } else throw new Error("Format salah"); } catch (err) { showLoading(false); showModal("Gagal membaca file JSON."); } }; reader.readAsText(file); }); event.target.value = ''; }
 
-        // NAVIGATION
-        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents', 'screen-admin-login', 'screen-admin-dashboard', 'screen-admin-listing', 'screen-admin-property-form', 'screen-admin-detail', 'screen-admin-visitors', 'screen-admin-agents', 'screen-admin-agent-form', 'screen-admin-promos', 'screen-admin-promo-form', 'screen-admin-settings', 'screen-admin-seo', 'screen-admin-locations', 'screen-admin-location-form', 'screen-admin-agency', 'screen-admin-users', 'screen-admin-user-form', 'screen-admin-property-types', 'screen-admin-property-type-form'];
+        function handleClearDatabase() {
+            let selectedTables = [];
+            if(document.getElementById('clear-tb-properties').checked) selectedTables.push('PROPERTIES');
+            if(document.getElementById('clear-tb-visitors').checked) selectedTables.push('VISITORS');
+            if(document.getElementById('clear-tb-agents').checked) selectedTables.push('AGENTS');
+            if(document.getElementById('clear-tb-promos').checked) selectedTables.push('PROMOS');
+            if(document.getElementById('clear-tb-locations').checked) selectedTables.push('LOCATIONS');
+
+            if(selectedTables.length === 0) {
+                return showModal("Pilih minimal satu tabel data yang akan dihapus!");
+            }
+
+            showModal(`Anda yakin ingin menghapus data pada ${selectedTables.length} tabel terpilih secara permanen?`, true, () => {
+                showLoading(true, "Menghapus Data...");
+                selectedTables.forEach(table => {
+                    appDB[table] = [];
+                });
+                saveDB(appDB);
+                
+                setTimeout(() => {
+                    showLoading(false);
+                    ['properties','visitors','agents','promos','locations'].forEach(tb => document.getElementById(`clear-tb-${tb}`).checked = false);
+                    showModal("Data berhasil dikosongkan!", false, () => navigate('screen-admin-settings'));
+                }, 800);
+            });
+        }
+
+        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents', 'screen-admin-login', 'screen-admin-dashboard', 'screen-admin-listing', 'screen-admin-property-form', 'screen-admin-detail', 'screen-admin-visitors', 'screen-admin-agents', 'screen-admin-agent-form', 'screen-admin-promos', 'screen-admin-promo-form', 'screen-admin-settings', 'screen-admin-seo', 'screen-admin-locations', 'screen-admin-location-form', 'screen-admin-agency', 'screen-admin-users', 'screen-admin-user-form', 'screen-admin-property-types', 'screen-admin-property-type-form', 'screen-admin-clear-db'];
         
         let previousScreen = 'screen-front-home'; // Default
 
@@ -956,7 +1040,14 @@
             else if (targetScreen === 'screen-front-search') { applyDynamicSEO(); initFrontSearch(); } 
             else if (targetScreen === 'screen-front-detail') { renderFrontDetail(); } 
             else if (targetScreen === 'screen-front-agents') { applyDynamicSEO(); renderFrontAgents(); } 
-            else if (targetScreen === 'screen-admin-dashboard' || targetScreen === 'screen-admin-listing') { renderAdminProperties(); if (targetScreen === 'screen-admin-dashboard') renderDashboardChart(); } 
+            else if (targetScreen === 'screen-admin-dashboard' || targetScreen === 'screen-admin-listing') { 
+                if (targetScreen === 'screen-admin-listing') {
+                    let adminCitySel = document.getElementById('admin-filter-city');
+                    if(adminCitySel && adminCitySel.options.length <= 1) populateLocationDropdowns('admin-filter-city', 'admin-filter-district');
+                }
+                renderAdminProperties(); 
+                if (targetScreen === 'screen-admin-dashboard') renderDashboardChart(); 
+            } 
             else if (targetScreen === 'screen-admin-visitors') renderAdminVisitors(); 
             else if (targetScreen === 'screen-admin-agents') renderAdminAgents(); 
             else if (targetScreen === 'screen-admin-promos') renderAdminPromos(); 
@@ -980,7 +1071,6 @@
             navigate(previousScreen);
         }
 
-        // SLIDER FOTO LOGIC
         function updateSlideView(prefix) {
             let imgEl = document.getElementById(`${prefix}-detail-image`); let btnPrev = document.getElementById(`${prefix}-btn-prev`); let btnNext = document.getElementById(`${prefix}-btn-next`); let counter = document.getElementById(`${prefix}-slide-counter`);
             if(currentDetailImages.length > 0) imgEl.src = currentDetailImages[currentSlideIndex];
@@ -996,11 +1086,11 @@
         function populatePropertyTypesDropdowns() {
             let html = '';
             appDB.PROPERTY_TYPES.forEach(pt => { html += `<option value="${pt.name}">${pt.name}</option>`; });
-            let frontSel = document.getElementById('front-lead-type'); if(frontSel) frontSel.innerHTML = html;
+            let frontSel = document.getElementById('front-lead-type'); if(frontSel) frontSel.innerHTML = '<option value="">Semua Jenis Properti</option>' + html;
             let formSel = document.getElementById('form-type'); if(formSel) formSel.innerHTML = html;
+            let adminFilterSel = document.getElementById('admin-filter-type'); if(adminFilterSel) adminFilterSel.innerHTML = '<option value="">Semua Jenis Properti</option>' + html;
         }
 
-        // FRONTEND - HOME & ALL PROPERTIES
         function renderFrontHome() {
             let agencyName = appDB.AGENCY?.name || 'PropertiHub'; let nameParts = agencyName.split(' ');
             document.getElementById('front-agency-name').innerHTML = `${nameParts[0] || 'Properti'}<span class="text-orange-400">${nameParts[1] || 'Hub'}</span>`;
@@ -1011,7 +1101,6 @@
                 promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50">Klaim Promo</button></div>`;
             }
 
-            // MENU JENIS PROPERTI
             let typesGrid = document.getElementById('front-property-types-grid'); typesGrid.innerHTML = '';
             const colorPalettes = [ {bg: 'bg-blue-100', text: 'text-blue-600'}, {bg: 'bg-orange-100', text: 'text-orange-600'}, {bg: 'bg-green-100', text: 'text-green-600'}, {bg: 'bg-amber-100', text: 'text-amber-600'}, {bg: 'bg-purple-100', text: 'text-purple-600'}, {bg: 'bg-cyan-100', text: 'text-cyan-600'}, {bg: 'bg-pink-100', text: 'text-pink-600'} ];
             appDB.PROPERTY_TYPES.forEach((pt, idx) => {
@@ -1019,55 +1108,74 @@
                 typesGrid.innerHTML += `<div onclick="navigate('screen-front-search')" class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-gray-50 transition-colors"><div class="p-3 rounded-full mb-2 ${color.bg} ${color.text}"><i data-lucide="${pt.icon || 'box'}" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800 text-center line-clamp-1">${pt.name}</span></div>`;
             });
 
-            // LIMIT PROPERTI MAKSIMAL 3 DI HOME
             let propContainer = document.getElementById('front-properties-container'); propContainer.innerHTML = '';
             let displayProps = appDB.PROPERTIES.slice(0, 3);
             displayProps.forEach(prop => {
                 let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
-                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
+                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/800x600/e2e8f0/94a3b8?text=Image'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
             });
 
-            // TOMBOL LIHAT SEMUA
             let viewAllBtn = document.getElementById('front-view-all-btn-container');
-            if (appDB.PROPERTIES.length > 3) {
-                viewAllBtn.classList.remove('hidden');
-            } else {
-                viewAllBtn.classList.add('hidden');
-            }
+            if (appDB.PROPERTIES.length > 3) { viewAllBtn.classList.remove('hidden'); } else { viewAllBtn.classList.add('hidden'); }
 
             lucide.createIcons();
         }
 
-        // FUNGSI PAGINASI SEMUA PROPERTI
+        function clearSearchFilters() {
+            currentSearchFilters = null;
+            currentAllPropertiesPage = 1;
+            renderFrontAllProperties();
+        }
+
         function renderFrontAllProperties() {
-            document.getElementById('front-all-properties-count').innerText = `${appDB.PROPERTIES.length} Listing Tersedia`;
+            let filteredProps = appDB.PROPERTIES;
+            let titleEl = document.getElementById('front-all-properties-title');
+            let filterIndicator = document.getElementById('front-filter-indicator');
+
+            // Apply Search Filters
+            if (currentSearchFilters) {
+                if (currentSearchFilters.type && currentSearchFilters.type !== "") {
+                    filteredProps = filteredProps.filter(p => p.type === currentSearchFilters.type);
+                }
+                if (currentSearchFilters.city && currentSearchFilters.city !== "") {
+                    filteredProps = filteredProps.filter(p => p.location.toLowerCase().includes(currentSearchFilters.city.toLowerCase()));
+                }
+                if (currentSearchFilters.district && currentSearchFilters.district !== "") {
+                    filteredProps = filteredProps.filter(p => p.location.toLowerCase().includes(currentSearchFilters.district.toLowerCase()));
+                }
+                
+                if (titleEl) titleEl.innerText = 'Hasil Pencarian';
+                if (filterIndicator) filterIndicator.classList.remove('hidden');
+            } else {
+                if (titleEl) titleEl.innerText = 'Semua Properti';
+                if (filterIndicator) filterIndicator.classList.add('hidden');
+            }
+
+            document.getElementById('front-all-properties-count').innerText = `${filteredProps.length} Listing Tersedia`;
             let propContainer = document.getElementById('front-all-properties-container');
             let paginationContainer = document.getElementById('front-all-properties-pagination');
             
             propContainer.innerHTML = '';
             paginationContainer.innerHTML = '';
             
-            if(appDB.PROPERTIES.length === 0) {
-                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Belum ada properti tersedia.</div>`;
+            if(filteredProps.length === 0) {
+                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Belum ada properti yang sesuai dengan kriteria pencarian Anda.</div>`;
                 return;
             }
 
-            // Logika Paginasi
-            const totalPages = Math.ceil(appDB.PROPERTIES.length / PROPERTIES_PER_PAGE);
+            const totalPages = Math.ceil(filteredProps.length / PROPERTIES_PER_PAGE);
             if (currentAllPropertiesPage > totalPages) currentAllPropertiesPage = totalPages || 1;
             if (currentAllPropertiesPage < 1) currentAllPropertiesPage = 1;
 
             const startIndex = (currentAllPropertiesPage - 1) * PROPERTIES_PER_PAGE;
             const endIndex = startIndex + PROPERTIES_PER_PAGE;
-            const currentProperties = appDB.PROPERTIES.slice(startIndex, endIndex);
+            const currentProperties = filteredProps.slice(startIndex, endIndex);
 
-            // Render Properti sesuai Halaman
             currentProperties.forEach(prop => {
                 let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
-                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
+                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/800x600/e2e8f0/94a3b8?text=Image'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
             });
 
-            // Render Tombol Paginasi jika lebih dari 1 halaman
             if (totalPages > 1) {
                 let prevBtn = document.createElement('button');
                 prevBtn.innerHTML = '<i data-lucide="chevron-left" class="h-4 w-4"></i>';
@@ -1099,7 +1207,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // FRONTEND - DETAIL
         function renderFrontDetail() {
             let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId)); if(!prop) return navigate('screen-front-home');
             applyDynamicSEO({ title: `${prop.title} | PropertiHub`, description: prop.description, image: prop.image });
@@ -1157,11 +1264,17 @@
         }
 
         function populateLocationDropdowns(cId, dId) {
-            let cSel = document.getElementById(cId); if(!cSel) return; cSel.innerHTML = '<option value="">Pilih Kota</option>'; appDB.LOCATIONS.forEach(l => cSel.innerHTML += `<option value="${l.city}">${l.city}</option>`); updateDistrictDropdown(cId, dId);
+            let cSel = document.getElementById(cId); if(!cSel) return; 
+            let defaultText = cId.includes('front') || cId.includes('admin') ? 'Semua Kota' : 'Pilih Kota';
+            cSel.innerHTML = `<option value="">${defaultText}</option>`; 
+            appDB.LOCATIONS.forEach(l => cSel.innerHTML += `<option value="${l.city}">${l.city}</option>`); 
+            updateDistrictDropdown(cId, dId);
         }
 
         function updateDistrictDropdown(cId, dId) {
-            let cVal = document.getElementById(cId).value; let dSel = document.getElementById(dId); if (!dSel) return; dSel.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            let cVal = document.getElementById(cId).value; let dSel = document.getElementById(dId); if (!dSel) return; 
+            let defaultText = dId.includes('front') || dId.includes('admin') ? 'Semua Kecamatan' : 'Pilih Kecamatan';
+            dSel.innerHTML = `<option value="">${defaultText}</option>`;
             if(cVal) { let loc = appDB.LOCATIONS.find(l => l.city === cVal); if(loc && loc.districts) loc.districts.forEach(d => dSel.innerHTML += `<option value="${d}">${d}</option>`); }
         }
 
@@ -1169,11 +1282,21 @@
             let name = document.getElementById('front-lead-name').value; let phone = document.getElementById('front-lead-phone').value;
             if(!name || !phone) return showModal("Mohon lengkapi Nama dan No. HP!");
             let city = document.getElementById('front-lead-city').value; let district = document.getElementById('front-lead-district').value;
-            appDB.VISITORS.unshift({ id: Date.now(), name: name, phone: phone, type: document.getElementById('front-lead-type').value, building: document.getElementById('front-lead-building').value || '-', location: district ? `${district}, ${city}` : city || 'Bebas', dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', promo: document.getElementById('front-lead-promo').value, date: new Date().toLocaleString('id-ID') });
-            saveDB(appDB); showModal("Berhasil! Tim kami akan menghubungi Anda.", false, () => navigate('screen-front-home'));
+            let type = document.getElementById('front-lead-type').value;
+            
+            let displayType = type || 'Semua Jenis';
+            let displayLoc = district && city ? `${district}, ${city}` : (city || 'Semua Lokasi');
+
+            appDB.VISITORS.unshift({ id: Date.now(), name: name, phone: phone, type: displayType, building: document.getElementById('front-lead-building').value || '-', location: displayLoc, dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', promo: document.getElementById('front-lead-promo').value, date: new Date().toLocaleString('id-ID') });
+            saveDB(appDB); 
+            
+            // Set parameter filter
+            let isFiltering = type !== "" || city !== "" || district !== "";
+            currentSearchFilters = isFiltering ? { type: type, city: city, district: district } : null;
+            
+            showModal("Berhasil! Tim kami akan menghubungi Anda. Berikut adalah properti yang sesuai dengan kriteria Anda.", false, () => navigate('screen-front-all-properties'));
         }
 
-        // ADMIN GENERAL
         function handleAdminLogin() {
             let u = document.getElementById('login-user').value; let p = document.getElementById('login-pass').value;
             let user = appDB.USERS.find(x => String(x.username) === u && String(x.password) === p);
@@ -1182,7 +1305,6 @@
         }
         function logoutAdmin() { currentUser = null; navigate('screen-front-search'); }
 
-        // ADMIN DASHBOARD CHART
         function renderDashboardChart() {
             let ctx = document.getElementById('dashboard-chart'); if(!ctx) return;
             if (chartInstance) chartInstance.destroy();
@@ -1196,13 +1318,78 @@
             chartInstance = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ label: 'Leads', data: counts, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
         }
 
-        // ADMIN LISTING
         function renderAdminProperties() {
-            document.getElementById('admin-count-dash').innerText = appDB.PROPERTIES.length; document.getElementById('admin-count-list').innerText = appDB.PROPERTIES.length; document.getElementById('admin-count-visitors-dash').innerText = appDB.VISITORS.length;
-            let c = document.getElementById('admin-properties-container'); c.innerHTML = '';
-            appDB.PROPERTIES.forEach(p => {
-                c.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center"><img src="${p.image}" class="w-20 h-20 rounded-xl object-cover" /><div class="flex-1"><span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 rounded-md">${p.type}</span><h4 class="font-bold text-sm mt-1 line-clamp-1">${p.title}</h4><p class="text-[11px] text-orange-500 font-semibold mb-2">Harga: ${p.price}</p><div class="flex gap-2 mt-2"><button onclick="viewPropertyAdmin('${p.id}')" class="flex-1 bg-blue-50 text-blue-600 py-1.5 rounded-lg text-[10px] font-bold"><i data-lucide="eye" class="h-3 w-3 inline"></i></button><button onclick="editProperty('${p.id}')" class="flex-1 bg-gray-50 text-gray-600 py-1.5 rounded-lg text-[10px] font-bold border"><i data-lucide="edit" class="h-3 w-3 inline"></i></button><button onclick="deleteProperty('${p.id}')" class="flex-1 bg-red-50 text-red-600 py-1.5 rounded-lg text-[10px] font-bold border border-red-100"><i data-lucide="trash-2" class="h-3 w-3 inline"></i></button></div></div></div>`;
+            let dashCount = document.getElementById('admin-count-dash'); if (dashCount) dashCount.innerText = appDB.PROPERTIES.length;
+            let visitorsDashCount = document.getElementById('admin-count-visitors-dash'); if (visitorsDashCount) visitorsDashCount.innerText = appDB.VISITORS.length;
+            
+            let c = document.getElementById('admin-properties-container');
+            let pContainer = document.getElementById('admin-properties-pagination');
+            if(!c) return;
+            
+            c.innerHTML = '';
+            if(pContainer) pContainer.innerHTML = '';
+
+            let filteredProps = appDB.PROPERTIES;
+
+            let typeFilter = document.getElementById('admin-filter-type');
+            let cityFilter = document.getElementById('admin-filter-city');
+            let distFilter = document.getElementById('admin-filter-district');
+
+            // Apply Filters
+            if(typeFilter && typeFilter.value !== "") {
+                filteredProps = filteredProps.filter(p => p.type === typeFilter.value);
+            }
+            if(cityFilter && cityFilter.value !== "") {
+                filteredProps = filteredProps.filter(p => p.location.toLowerCase().includes(cityFilter.value.toLowerCase()));
+            }
+            if(distFilter && distFilter.value !== "") {
+                filteredProps = filteredProps.filter(p => p.location.toLowerCase().includes(distFilter.value.toLowerCase()));
+            }
+
+            let listCount = document.getElementById('admin-count-list');
+            if(listCount) listCount.innerText = filteredProps.length;
+
+            if(filteredProps.length === 0) {
+                c.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100 w-full">Tidak ada properti yang sesuai dengan filter.</div>`;
+                return;
+            }
+
+            // Paginasi Logic (7 items per page)
+            const totalPages = Math.ceil(filteredProps.length / ADMIN_PROPERTIES_PER_PAGE);
+            if (currentAdminListPage > totalPages) currentAdminListPage = totalPages || 1;
+            if (currentAdminListPage < 1) currentAdminListPage = 1;
+
+            const startIndex = (currentAdminListPage - 1) * ADMIN_PROPERTIES_PER_PAGE;
+            const endIndex = startIndex + ADMIN_PROPERTIES_PER_PAGE;
+            const currentProps = filteredProps.slice(startIndex, endIndex);
+
+            currentProps.forEach(p => {
+                c.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center"><img src="${p.image}" onerror="this.src='https://placehold.co/150/e2e8f0/94a3b8?text=X'" class="w-20 h-20 rounded-xl object-cover" /><div class="flex-1"><span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 rounded-md">${p.type}</span><h4 class="font-bold text-sm mt-1 line-clamp-1">${p.title}</h4><p class="text-[11px] text-orange-500 font-semibold mb-2">Harga: ${p.price}</p><div class="flex gap-2 mt-2"><button onclick="viewPropertyAdmin('${p.id}')" class="flex-1 bg-blue-50 text-blue-600 py-1.5 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-100"><i data-lucide="eye" class="h-3 w-3 inline"></i></button><button onclick="editProperty('${p.id}')" class="flex-1 bg-gray-50 text-gray-600 py-1.5 rounded-lg text-[10px] font-bold border border-gray-200 hover:bg-gray-100"><i data-lucide="edit" class="h-3 w-3 inline"></i></button><button onclick="deleteProperty('${p.id}')" class="flex-1 bg-red-50 text-red-600 py-1.5 rounded-lg text-[10px] font-bold border border-red-100 hover:bg-red-100"><i data-lucide="trash-2" class="h-3 w-3 inline"></i></button></div></div></div>`;
             });
+
+            // Render Pagination Buttons
+            if (totalPages > 1 && pContainer) {
+                let prevBtn = document.createElement('button');
+                prevBtn.innerHTML = '<i data-lucide="chevron-left" class="h-4 w-4"></i>';
+                prevBtn.className = `p-2 rounded-xl border transition-colors ${currentAdminListPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
+                prevBtn.onclick = () => { if(currentAdminListPage > 1) { currentAdminListPage--; renderAdminProperties(); window.scrollTo({top:0, behavior:'smooth'}); } };
+                pContainer.appendChild(prevBtn);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    let pageBtn = document.createElement('button');
+                    pageBtn.innerText = i;
+                    pageBtn.className = `w-10 h-10 flex justify-center items-center rounded-xl text-xs font-bold border transition-all ${currentAdminListPage === i ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 shadow-sm'}`;
+                    pageBtn.onclick = () => { currentAdminListPage = i; renderAdminProperties(); window.scrollTo({top:0, behavior:'smooth'}); };
+                    pContainer.appendChild(pageBtn);
+                }
+
+                let nextBtn = document.createElement('button');
+                nextBtn.innerHTML = '<i data-lucide="chevron-right" class="h-4 w-4"></i>';
+                nextBtn.className = `p-2 rounded-xl border transition-colors ${currentAdminListPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`;
+                nextBtn.onclick = () => { if(currentAdminListPage < totalPages) { currentAdminListPage++; renderAdminProperties(); window.scrollTo({top:0, behavior:'smooth'}); } };
+                pContainer.appendChild(nextBtn);
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         function deleteProperty(id) { showModal("Hapus properti ini?", true, () => { appDB.PROPERTIES = appDB.PROPERTIES.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminProperties(); }); }
 
@@ -1302,7 +1489,6 @@
             navigate('screen-admin-detail');
         }
 
-        // ADMIN LEADS (DIKEMBALIKAN SEPERTI v1.6 DENGAN TOMBOL WA)
         function renderAdminVisitors() { 
             document.getElementById('admin-count-visitors').innerText = appDB.VISITORS.length; 
             let c = document.getElementById('admin-visitors-container'); 
@@ -1312,7 +1498,6 @@
 
             appDB.VISITORS.forEach(v => { 
                 let cleanPhone = v.phone.replace(/[^0-9]/g, '');
-                // Pastikan kode negara +62 untuk WA
                 if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
 
                 let msg = encodeURIComponent(`Halo ${v.name}, saya admin dari ${agencyName}. Anda sebelumnya mencari properti tipe ${v.type} di daerah ${v.location}. Ada yang bisa dibantu?`);
@@ -1346,36 +1531,31 @@
         }
         function downloadCSV() { let csv = "Tanggal,Nama,No HP,Tipe Properti,Ukuran,Lokasi,DP,Promo\n"; appDB.VISITORS.forEach(v => csv += `"${v.date}","${v.name}","${v.phone}","${v.type}","${v.building}","${v.location}","${v.dp}","${v.promo}"\n`); let blob = new Blob([csv], { type: 'text/csv' }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Leads_PropertiHub.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
 
-        // ADMIN AGENTS
         function openAgentForm() { editingAgentId = null; document.getElementById('admin-agent-form-title').innerText = 'Tambah Agen'; ['form-agent-name','form-agent-role','form-agent-phone','form-agent-image'].forEach(id => document.getElementById(id).value = ''); navigate('screen-admin-agent-form'); }
         function editAgent(id) { let a = appDB.AGENTS.find(x => String(x.id) === String(id)); if(!a) return; editingAgentId = id; document.getElementById('admin-agent-form-title').innerText = 'Edit Agen'; document.getElementById('form-agent-name').value = a.name; document.getElementById('form-agent-role').value = a.role; document.getElementById('form-agent-phone').value = a.phone; document.getElementById('form-agent-image').value = a.image; navigate('screen-admin-agent-form'); }
         function handleSaveAgent() { let name = document.getElementById('form-agent-name').value; if(!name) return showModal("Nama wajib diisi!"); let data = { name: name, role: document.getElementById('form-agent-role').value, phone: document.getElementById('form-agent-phone').value, image: document.getElementById('form-agent-image').value || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80' }; if(editingAgentId) { let i = appDB.AGENTS.findIndex(x => String(x.id) === String(editingAgentId)); if(i !== -1) appDB.AGENTS[i] = {...appDB.AGENTS[i], ...data}; } else { data.id = Date.now(); appDB.AGENTS.push(data); } saveDB(appDB); navigate('screen-admin-agents'); }
         function deleteAgent(id) { showModal("Hapus agen ini?", true, () => { appDB.AGENTS = appDB.AGENTS.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminAgents(); }); }
-        function renderAdminAgents() { let c = document.getElementById('admin-agents-container'); c.innerHTML=''; appDB.AGENTS.forEach(a => { c.innerHTML += `<div class="bg-white p-3 rounded-xl border flex gap-3 items-center"><img src="${a.image}" class="w-12 h-12 rounded-full object-cover"/><div class="flex-1"><h4 class="font-bold text-sm">${a.name}</h4><p class="text-xs text-gray-500">${a.role}</p></div><div><button onclick="editAgent('${a.id}')" class="p-2 text-gray-500 hover:text-blue-600"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deleteAgent('${a.id}')" class="p-2 text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); document.getElementById('front-agents-container').innerHTML = c.innerHTML; lucide.createIcons(); }
+        function renderAdminAgents() { let c = document.getElementById('admin-agents-container'); c.innerHTML=''; appDB.AGENTS.forEach(a => { c.innerHTML += `<div class="bg-white p-3 rounded-xl border flex gap-3 items-center"><img src="${a.image}" onerror="this.src='https://placehold.co/100/e2e8f0/94a3b8?text=A'" class="w-12 h-12 rounded-full object-cover"/><div class="flex-1"><h4 class="font-bold text-sm">${a.name}</h4><p class="text-xs text-gray-500">${a.role}</p></div><div><button onclick="editAgent('${a.id}')" class="p-2 text-gray-500 hover:text-blue-600"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deleteAgent('${a.id}')" class="p-2 text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); document.getElementById('front-agents-container').innerHTML = c.innerHTML; lucide.createIcons(); }
         function renderFrontAgents() { renderAdminAgents(); }
 
-        // ADMIN PROMOS
         function openPromoForm() { editingPromoId = null; document.getElementById('admin-promo-form-title').innerText = 'Tambah Promo'; ['form-promo-badge','form-promo-title','form-promo-subtitle'].forEach(id => document.getElementById(id).value = ''); navigate('screen-admin-promo-form'); }
         function editPromo(id) { let p = appDB.PROMOS.find(x => String(x.id) === String(id)); if(!p) return; editingPromoId = id; document.getElementById('admin-promo-form-title').innerText = 'Edit Promo'; document.getElementById('form-promo-badge').value = p.badge; document.getElementById('form-promo-title').value = p.title; document.getElementById('form-promo-subtitle').value = p.subtitle; navigate('screen-admin-promo-form'); }
         function handleSavePromo() { let title = document.getElementById('form-promo-title').value; if(!title) return showModal("Judul wajib!"); let data = { badge: document.getElementById('form-promo-badge').value, title: title, subtitle: document.getElementById('form-promo-subtitle').value }; if(editingPromoId) { let i = appDB.PROMOS.findIndex(x => String(x.id) === String(editingPromoId)); if(i !== -1) appDB.PROMOS[i] = {...appDB.PROMOS[i], ...data}; } else { data.id = Date.now(); appDB.PROMOS.push(data); } saveDB(appDB); navigate('screen-admin-promos'); }
         function deletePromo(id) { showModal("Hapus promo ini?", true, () => { appDB.PROMOS = appDB.PROMOS.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminPromos(); }); }
         function renderAdminPromos() { let c = document.getElementById('admin-promos-container'); c.innerHTML=''; appDB.PROMOS.forEach(p => { c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex gap-3 items-center"><div class="flex-1"><span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">${p.badge}</span><h4 class="font-bold text-sm mt-1">${p.title}</h4></div><div><button onclick="editPromo('${p.id}')" class="p-2 text-gray-500"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deletePromo('${p.id}')" class="p-2 text-red-500"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); let cb = document.getElementById('form-promo-checkboxes'); if(cb) { cb.innerHTML = ''; appDB.PROMOS.forEach(p => { cb.innerHTML += `<label class="flex items-center gap-2 text-xs text-gray-700 font-medium"><input type="checkbox" value="${p.id}" class="form-promo-cb w-4 h-4 rounded text-blue-600 border-gray-300" /> ${p.title}</label>`; }); } lucide.createIcons(); }
 
-        // ADMIN USERS
         function openUserForm() { editingUserId = null; document.getElementById('admin-user-form-title').innerText = 'Tambah Pengguna'; ['form-user-name','form-user-username','form-user-password'].forEach(id => document.getElementById(id).value = ''); navigate('screen-admin-user-form'); }
         function editUser(id) { let u = appDB.USERS.find(x => String(x.id) === String(id)); if(!u) return; editingUserId = id; document.getElementById('admin-user-form-title').innerText = 'Edit Pengguna'; document.getElementById('form-user-name').value = u.name; document.getElementById('form-user-username').value = u.username; document.getElementById('form-user-password').value = u.password; document.getElementById('form-user-role').value = u.role; navigate('screen-admin-user-form'); }
         function handleSaveUser() { let user = document.getElementById('form-user-username').value; if(!user) return showModal("Username wajib!"); let data = { name: document.getElementById('form-user-name').value, username: user, password: document.getElementById('form-user-password').value, role: document.getElementById('form-user-role').value }; if(editingUserId) { let i = appDB.USERS.findIndex(x => String(x.id) === String(editingUserId)); if(i !== -1) appDB.USERS[i] = {...appDB.USERS[i], ...data}; } else { data.id = Date.now(); appDB.USERS.push(data); } saveDB(appDB); navigate('screen-admin-users'); }
         function deleteUser(id) { if(appDB.USERS.length <= 1) return showModal("Tidak bisa menghapus user terakhir!"); showModal("Hapus user ini?", true, () => { appDB.USERS = appDB.USERS.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminUsers(); }); }
         function renderAdminUsers() { let c = document.getElementById('admin-users-container'); c.innerHTML=''; appDB.USERS.forEach(u => { c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex gap-3 items-center"><div class="flex-1"><h4 class="font-bold text-sm">${u.name}</h4><p class="text-[10px] text-gray-500">@${u.username} • ${u.role}</p></div><div><button onclick="editUser('${u.id}')" class="p-2 text-gray-500"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deleteUser('${u.id}')" class="p-2 text-red-500"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); lucide.createIcons(); }
 
-        // ADMIN LOCATIONS
         function openLocationForm() { editingLocationId = null; document.getElementById('admin-location-form-title').innerText = 'Tambah Lokasi'; document.getElementById('form-loc-city').value = ''; document.getElementById('form-loc-districts').value = ''; navigate('screen-admin-location-form'); }
         function editLocation(id) { let l = appDB.LOCATIONS.find(x => String(x.id) === String(id)); if(!l) return; editingLocationId = id; document.getElementById('admin-location-form-title').innerText = 'Edit Lokasi'; document.getElementById('form-loc-city').value = l.city; document.getElementById('form-loc-districts').value = (l.districts||[]).join(', '); navigate('screen-admin-location-form'); }
         function handleSaveLocation() { let city = document.getElementById('form-loc-city').value; if(!city) return showModal("Kota wajib diisi!"); let dist = document.getElementById('form-loc-districts').value.split(',').map(x => x.trim()).filter(x => x); let data = { city: city, districts: dist }; if(editingLocationId) { let i = appDB.LOCATIONS.findIndex(x => String(x.id) === String(editingLocationId)); if(i !== -1) appDB.LOCATIONS[i] = {...appDB.LOCATIONS[i], ...data}; } else { data.id = Date.now(); appDB.LOCATIONS.push(data); } saveDB(appDB); navigate('screen-admin-locations'); }
         function deleteLocation(id) { showModal("Hapus lokasi ini?", true, () => { appDB.LOCATIONS = appDB.LOCATIONS.filter(x => String(x.id) !== String(id)); saveDB(appDB); renderAdminLocations(); }); }
         function renderAdminLocations() { let c = document.getElementById('admin-locations-container'); c.innerHTML=''; appDB.LOCATIONS.forEach(l => { c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex justify-between items-center"><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${l.city}</h4><p class="text-[10px] text-gray-500 line-clamp-1">${(l.districts||[]).join(', ')}</p></div><div class="flex gap-1"><button onclick="editLocation('${l.id}')" class="p-2 text-gray-500 hover:text-blue-600 transition-colors"><i data-lucide="edit" class="h-4 w-4"></i></button><button onclick="deleteLocation('${l.id}')" class="p-2 text-red-500 hover:text-red-700 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`; }); lucide.createIcons(); }
 
-        // ADMIN PROPERTY TYPES
         function renderAdminPropertyTypes() {
             let c = document.getElementById('admin-property-types-container'); c.innerHTML = '';
             appDB.PROPERTY_TYPES.forEach((pt, index) => {
@@ -1431,7 +1611,6 @@
             });
         }
 
-        // ADMIN AGENCY & SEO
         function renderAdminAgency() { document.getElementById('form-agency-name').value = appDB.AGENCY?.name || ''; document.getElementById('form-agency-phone').value = appDB.AGENCY?.phone || ''; document.getElementById('form-agency-address').value = appDB.AGENCY?.address || ''; document.getElementById('form-agency-kpr').value = appDB.AGENCY?.kprInterest || 5.5; }
         function handleSaveAgency() { appDB.AGENCY = { name: document.getElementById('form-agency-name').value, phone: document.getElementById('form-agency-phone').value, address: document.getElementById('form-agency-address').value, kprInterest: parseFloat(document.getElementById('form-agency-kpr').value) || 5.5 }; saveDB(appDB); showModal("Profil agensi disimpan!", false, () => navigate('screen-admin-settings')); }
         
