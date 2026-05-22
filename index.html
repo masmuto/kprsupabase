@@ -80,7 +80,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">
                         <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-6 w-6 text-white"></i></div>
-                        <span onclick="window.location.href='#'" class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span> <span id="db-status-badge" class="text-[9px] bg-emerald-500 px-1.5 py-0.5 rounded text-white ml-1 shadow-sm relative -top-2">Cloud</span></span>
+                        <span onclick="window.location.href='admin.html'" class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">Properti<span class="text-orange-400">Hub</span> <span id="db-status-badge" class="text-[9px] bg-emerald-500 px-1.5 py-0.5 rounded text-white ml-1 shadow-sm relative -top-2">Cloud</span></span>
                     </div>
                     <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
                 </div>
@@ -692,8 +692,10 @@
         }
 
         function shareProperty() {
-            if (navigator.share) navigator.share({ title: document.getElementById('front-detail-title').innerText, url: window.location.href });
-            else { navigator.clipboard.writeText(window.location.href); showModal("Link disalin!"); }
+            // Membentuk URL unik untuk dibagikan (Berguna untuk Sitemap & Share WA)
+            const propUrl = window.location.origin + window.location.pathname + '?id=' + selectedFrontPropertyId;
+            if (navigator.share) navigator.share({ title: document.getElementById('front-detail-title').innerText, url: propUrl });
+            else { navigator.clipboard.writeText(propUrl); showModal("Link disalin!"); }
         }
 
         function renderFrontAgents() { 
@@ -708,7 +710,24 @@
         window.onload = async function() { 
             initTheme(); 
             await initDB(); 
-            navigate('screen-front-search'); 
+
+            // Cek apakah ada parameter URL (contoh: ?id=12345) untuk fitur Sitemap/Share
+            const urlParams = new URLSearchParams(window.location.search);
+            const propId = urlParams.get('id');
+
+            if (propId) {
+                // Pastikan properti dengan ID tersebut ada di database
+                const propExists = appDB.PROPERTIES.find(p => String(p.id) === String(propId));
+                if (propExists) {
+                    selectedFrontPropertyId = propId;
+                    navigate('screen-front-detail');
+                } else {
+                    navigate('screen-front-search'); 
+                }
+            } else {
+                navigate('screen-front-search'); 
+            }
+
             lucide.createIcons(); 
         };
     </script>
