@@ -534,6 +534,19 @@
                     <div><label class="text-[10px] md:text-xs font-bold block mb-1.5 text-gray-500">URL Gambar Banner/Thumbnail (Utk Share WA)</label><input id="form-seo-image" type="text" placeholder="https://..." class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border text-sm md:text-base outline-none focus:border-blue-500" /></div>
                     <button onclick="handleSaveSEO()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold md:text-lg mt-4 shadow-lg transition">Update SEO Data</button>
                 </div>
+                
+                <div class="bg-indigo-50 p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-indigo-100 flex flex-col gap-4 mt-2 max-w-3xl mx-auto w-full">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-indigo-100 p-3 rounded-full text-indigo-600 mt-1"><i data-lucide="file-code-2" class="h-6 w-6"></i></div>
+                        <div>
+                            <h3 class="text-base md:text-lg font-bold text-indigo-900 mb-1">Sitemap Generator (XML)</h3>
+                            <p class="text-xs md:text-sm text-indigo-700 leading-relaxed">Buat file <b>sitemap.xml</b> otomatis yang berisi seluruh link valid dari setiap listing properti. Upload file ini ke root server Anda atau daftarkan di Google Search Console agar properti lebih mudah terindeks.</p>
+                        </div>
+                    </div>
+                    <button onclick="generateSitemapXML()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 md:py-4 rounded-xl font-bold md:text-lg mt-2 shadow-md transition flex justify-center items-center gap-2">
+                        <i data-lucide="download" class="h-5 w-5 md:h-6 md:w-6"></i> Download sitemap.xml
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1132,6 +1145,52 @@
         
         function renderAdminSEO() { document.getElementById('form-seo-title').value = appDB.SEO?.title || ''; document.getElementById('form-seo-desc').value = appDB.SEO?.description || ''; document.getElementById('form-seo-keywords').value = appDB.SEO?.keywords || ''; document.getElementById('form-seo-image').value = appDB.SEO?.image || ''; }
         function handleSaveSEO() { appDB.SEO = { title: document.getElementById('form-seo-title').value, description: document.getElementById('form-seo-desc').value, keywords: document.getElementById('form-seo-keywords').value, image: document.getElementById('form-seo-image').value }; saveDB(appDB); showModal("Data SEO berhasil ditanamkan ke sistem!", false, () => navigate('screen-admin-settings')); }
+
+        function generateSitemapXML() {
+            if (!appDB.PROPERTIES || appDB.PROPERTIES.length === 0) {
+                return showModal("Belum ada data properti. Sitemap kosong tidak dapat dibuat.");
+            }
+
+            // Dapatkan domain website saat ini dan pastikan menunjuk ke index.html
+            let baseUrl = window.location.href.split('/admin.html')[0];
+            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+
+            // Menyusun format standar XML Sitemap
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+            // Entri 1: Halaman Depan
+            xml += '  <url>\n';
+            xml += `    <loc>${baseUrl}/index.html</loc>\n`;
+            xml += '    <changefreq>daily</changefreq>\n';
+            xml += '    <priority>1.0</priority>\n';
+            xml += '  </url>\n';
+
+            // Melakukan perulangan / mapping seluruh URL properti
+            appDB.PROPERTIES.forEach(p => {
+                xml += '  <url>\n';
+                // URL menggunakan parameter ?id= agar langsung membuka halaman detail
+                xml += `    <loc>${baseUrl}/index.html?id=${p.id}</loc>\n`;
+                xml += '    <changefreq>weekly</changefreq>\n';
+                xml += '    <priority>0.8</priority>\n';
+                xml += '  </url>\n';
+            });
+
+            xml += '</urlset>';
+
+            // Memicu pengunduhan file
+            let blob = new Blob([xml], { type: 'text/xml' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'sitemap.xml';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showModal("sitemap.xml berhasil diunduh! Silakan unggah ke server atau submit di Google Search Console.");
+        }
 
         function backupDatabase() { let blob = new Blob([JSON.stringify(appDB)], { type: "application/json" }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `PropertiHub_Backup_DB.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
         function restoreDatabase(event) { let file = event.target.files[0]; if (!file) return; showModal("Yakin ingin merestore? Seluruh data yang ada saat ini akan digantikan oleh file.", true, () => { showLoading(true); let reader = new FileReader(); reader.onload = function(e) { try { let parsedData = JSON.parse(e.target.result); if (parsedData && parsedData.PROPERTIES) { appDB = parsedData; saveDB(appDB); showLoading(false); showModal("Restore data sukses!"); navigate('screen-admin-settings'); } else throw new Error("Format JSON rusak"); } catch (err) { showLoading(false); showModal("Gagal membaca file backup."); } }; reader.readAsText(file); }); event.target.value = ''; }
