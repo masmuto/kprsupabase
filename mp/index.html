@@ -711,6 +711,13 @@
                 });
             }
             
+            if (!appDB.LOCATIONS || appDB.LOCATIONS.length === 0) {
+                appDB.LOCATIONS = [
+                    { id: 1, city: 'Jakarta Selatan', districts: ['Kebayoran Baru', 'Pondok Indah', 'Kemang', 'Tebet'] },
+                    { id: 2, city: 'Tangerang', districts: ['BSD City', 'Gading Serpong', 'Alam Sutera', 'Bintaro'] }
+                ];
+            }
+            
             populatePropertyTypesDropdowns(); populateLocationDropdowns('filter-admin-city', 'filter-admin-district'); showLoading(false);
         }
 
@@ -743,7 +750,11 @@
             if (currentUser && targetScreen !== 'screen-admin-login' && targetScreen !== 'screen-admin-property-form' && targetScreen !== 'screen-admin-detail') { document.getElementById('nav-admin').classList.remove('hidden'); document.getElementById('nav-admin').classList.add('flex'); } 
             else { document.getElementById('nav-admin').classList.add('hidden'); document.getElementById('nav-admin').classList.remove('flex'); }
 
-            if (targetScreen === 'screen-admin-dashboard' || targetScreen === 'screen-admin-listing') { renderAdminProperties(); if (targetScreen === 'screen-admin-dashboard') renderDashboardChart(); } 
+            if (targetScreen === 'screen-admin-dashboard' || targetScreen === 'screen-admin-listing') { 
+                populateLocationDropdowns('filter-admin-city', 'filter-admin-district');
+                renderAdminProperties(); 
+                if (targetScreen === 'screen-admin-dashboard') renderDashboardChart(); 
+            } 
             else if (targetScreen === 'screen-admin-visitors') renderAdminVisitors(); 
             else if (targetScreen === 'screen-admin-agents') renderAdminAgents(); 
             else if (targetScreen === 'screen-admin-promos') renderAdminPromos(); 
@@ -948,6 +959,7 @@
             ['form-title','form-price','form-dp','form-allincost','form-building-type','form-description', 'form-brochure'].forEach(id=>document.getElementById(id).value=''); 
             document.getElementById('form-image-container').innerHTML=''; addImageInput(''); 
             populatePropertyTypesDropdowns();
+            populateLocationDropdowns('form-city', 'form-district');
             document.getElementById('form-city').value=''; updateDistrictDropdown('form-city', 'form-district'); 
             renderAdminPromos(); 
             navigate('screen-admin-property-form'); 
@@ -962,6 +974,7 @@
             if(p.images && p.images.length > 0) p.images.forEach(img => addImageInput(img)); else addImageInput(p.image); 
             
             populatePropertyTypesDropdowns();
+            populateLocationDropdowns('form-city', 'form-district');
             document.getElementById('form-type').value = p.type || (appDB.PROPERTY_TYPES[0]?.name || 'Rumah');
 
             let locParts = p.location ? p.location.split(',') : [];
