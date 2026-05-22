@@ -528,6 +528,7 @@
             </div>
             <div class="p-5 md:p-10 flex flex-col gap-4">
                 <div class="bg-white p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-5 max-w-3xl mx-auto w-full">
+                    <div><label class="text-[10px] md:text-xs font-bold block mb-1.5 text-gray-500">URL Website Utama (Frontend)</label><input id="form-seo-url" type="text" placeholder="https://www.domainanda.com" class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border text-sm md:text-base outline-none focus:border-blue-500" /></div>
                     <div><label class="text-[10px] md:text-xs font-bold block mb-1.5 text-gray-500">Meta Title Web</label><input id="form-seo-title" type="text" placeholder="Cth: PropertiHub - Hunian Terbaik" class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border text-sm md:text-base outline-none focus:border-blue-500" /></div>
                     <div><label class="text-[10px] md:text-xs font-bold block mb-1.5 text-gray-500">Meta Description</label><textarea id="form-seo-desc" rows="4" placeholder="Deskripsi singkat website untuk Google..." class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border text-sm md:text-base resize-none outline-none focus:border-blue-500"></textarea></div>
                     <div><label class="text-[10px] md:text-xs font-bold block mb-1.5 text-gray-500">Meta Keywords (Pisahkan dengan koma)</label><input id="form-seo-keywords" type="text" placeholder="properti, rumah murah, beli apartemen" class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border text-sm md:text-base outline-none focus:border-blue-500" /></div>
@@ -1143,23 +1144,26 @@
         function renderAdminAgency() { document.getElementById('form-agency-name').value = appDB.AGENCY?.name || ''; document.getElementById('form-agency-phone').value = appDB.AGENCY?.phone || ''; document.getElementById('form-agency-address').value = appDB.AGENCY?.address || ''; document.getElementById('form-agency-kpr').value = appDB.AGENCY?.kprInterest || 5.5; }
         function handleSaveAgency() { appDB.AGENCY = { name: document.getElementById('form-agency-name').value, phone: document.getElementById('form-agency-phone').value, address: document.getElementById('form-agency-address').value, kprInterest: parseFloat(document.getElementById('form-agency-kpr').value) || 5.5 }; saveDB(appDB); showModal("Informasi profil agensi berhasil diperbarui!", false, () => navigate('screen-admin-settings')); }
         
-        function renderAdminSEO() { document.getElementById('form-seo-title').value = appDB.SEO?.title || ''; document.getElementById('form-seo-desc').value = appDB.SEO?.description || ''; document.getElementById('form-seo-keywords').value = appDB.SEO?.keywords || ''; document.getElementById('form-seo-image').value = appDB.SEO?.image || ''; }
-        function handleSaveSEO() { appDB.SEO = { title: document.getElementById('form-seo-title').value, description: document.getElementById('form-seo-desc').value, keywords: document.getElementById('form-seo-keywords').value, image: document.getElementById('form-seo-image').value }; saveDB(appDB); showModal("Data SEO berhasil ditanamkan ke sistem!", false, () => navigate('screen-admin-settings')); }
+        function renderAdminSEO() { document.getElementById('form-seo-url').value = appDB.SEO?.frontendUrl || ''; document.getElementById('form-seo-title').value = appDB.SEO?.title || ''; document.getElementById('form-seo-desc').value = appDB.SEO?.description || ''; document.getElementById('form-seo-keywords').value = appDB.SEO?.keywords || ''; document.getElementById('form-seo-image').value = appDB.SEO?.image || ''; }
+        function handleSaveSEO() { appDB.SEO = { frontendUrl: document.getElementById('form-seo-url').value.replace(/\/$/, ""), title: document.getElementById('form-seo-title').value, description: document.getElementById('form-seo-desc').value, keywords: document.getElementById('form-seo-keywords').value, image: document.getElementById('form-seo-image').value }; saveDB(appDB); showModal("Data SEO berhasil ditanamkan ke sistem!", false, () => navigate('screen-admin-settings')); }
 
         function generateSitemapXML() {
             if (!appDB.PROPERTIES || appDB.PROPERTIES.length === 0) {
                 return showModal("Belum ada data properti. Sitemap kosong tidak dapat dibuat.");
             }
 
-            // Dapatkan domain website saat ini dan pastikan menunjuk ke index.html
-            let baseUrl = window.location.href.split('/admin.html')[0];
-            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            // Dapatkan URL dasar dari setting SEO, atau gunakan URL Admin saat ini jika kosong
+            let baseUrl = appDB.SEO?.frontendUrl || '';
+            if (!baseUrl) {
+                baseUrl = window.location.href.split('/admin.html')[0];
+                if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            }
 
             // Menyusun format standar XML Sitemap
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
             xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-            // Entri 1: Halaman Depan
+            // Entri 1: Halaman Depan Frontend
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/index.html</loc>\n`;
             xml += '    <changefreq>daily</changefreq>\n';
@@ -1169,7 +1173,7 @@
             // Melakukan perulangan / mapping seluruh URL properti
             appDB.PROPERTIES.forEach(p => {
                 xml += '  <url>\n';
-                // URL menggunakan parameter ?id= agar langsung membuka halaman detail
+                // URL langsung membuka halaman detail di frontend menggunakan parameter ?id=
                 xml += `    <loc>${baseUrl}/index.html?id=${p.id}</loc>\n`;
                 xml += '    <changefreq>weekly</changefreq>\n';
                 xml += '    <priority>0.8</priority>\n';
@@ -1189,7 +1193,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showModal("sitemap.xml berhasil diunduh! Silakan unggah ke server atau submit di Google Search Console.");
+            showModal("sitemap.xml berhasil diunduh!\n\nSeluruh link properti telah diarahkan ke: " + baseUrl);
         }
 
         function backupDatabase() { let blob = new Blob([JSON.stringify(appDB)], { type: "application/json" }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `PropertiHub_Backup_DB.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
