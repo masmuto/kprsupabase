@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- DYNAMIC SEO TAGS -->
     <title id="page-title">PropertiHub - Temukan Hunian Impian Anda</title>
     <meta name="description" id="meta-desc" content="Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.">
     <meta name="keywords" id="meta-keywords" content="properti, rumah, apartemen, jual rumah, beli rumah, propertihub">
     
-    <!-- OPEN GRAPH -->
+    <!-- OPEN GRAPH (UNTUK SHARE WA/FB/IG/TELEGRAM) -->
     <meta property="og:type" content="website">
     <meta property="og:title" id="og-title" content="PropertiHub - Temukan Hunian Impian Anda">
     <meta property="og:description" id="og-desc" content="Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.">
     <meta property="og:image" id="og-image" content="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80">
     <meta property="og:url" id="og-url" content="">
     
+    <!-- LIBRARIES -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- SUPABASE JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style> 
@@ -25,6 +32,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Dark Mode Overrides */
         html.dark body { background-color: #0f172a; color: #f8fafc; }
         html.dark #app-container { background-color: #1e293b; border-color: #334155; }
         html.dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; color: #f8fafc !important; }
@@ -50,6 +58,8 @@
         html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; border-color: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
         html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; color: #fca5a5 !important; }
         html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.1) !important; border-color: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
+        html.dark .bg-cyan-50 { background-color: rgba(6, 182, 212, 0.1) !important; border-color: rgba(6, 182, 212, 0.2) !important; color: #67e8f9 !important; }
+        html.dark .bg-purple-50 { background-color: rgba(168, 85, 247, 0.1) !important; border-color: rgba(168, 85, 247, 0.2) !important; color: #d8b4fe !important; }
     </style>
 </head>
 <body class="bg-gray-200 text-gray-900 flex justify-center">
@@ -72,96 +82,15 @@
 
     <div id="app-container" class="w-full max-w-[430px] min-h-screen bg-gray-50 relative overflow-x-hidden sm:border-x sm:border-gray-300 shadow-2xl">
 
-        <div id="screen-front-search" class="hidden relative min-h-screen flex-col justify-end bg-gray-900 pb-24">
-            <div class="absolute inset-0 z-0">
-                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Background" onerror="this.src='https://placehold.co/800x600/0f172a/ffffff?text=PropertiHub'" class="w-full h-full object-cover opacity-40" />
-            </div>
-            <div class="relative z-10 w-full px-5 pt-20">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-6 w-6 text-white"></i></div>
-                        <span class="font-bold text-2xl text-white drop-shadow-md cursor-pointer">KPR<span class="text-orange-400">.Asia</span> <span id="db-status-badge" class="text-[9px] bg-emerald-500 px-1.5 py-0.5 rounded text-white ml-1 shadow-sm relative -top-2">Cloud</span></span>
-                    </div>
-                    <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
-                </div>
-                
-                <h1 class="text-3xl font-bold text-white mb-2 leading-tight">Mulai Perjalanan <br/>Menuju <span class="text-orange-400">Rumah Impian</span></h1>
-                <p class="text-sm text-gray-300 mb-6">Lengkapi kriteria properti idaman dan data diri Anda di bawah ini.</p>
-                
-                <div class="bg-white p-5 rounded-3xl shadow-2xl flex flex-col gap-4">
-                   <div>
-                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Jenis Properti</label>
-                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                        <i data-lucide="building-2" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <select id="front-lead-type" class="bg-transparent w-full outline-none text-sm font-medium"></select>
-                      </div>
-                   </div>
-                   <div>
-                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Tipe / Ukuran</label>
-                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                        <i data-lucide="maximize" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <input id="front-lead-building" type="text" placeholder="Cth: Tipe 36/60, Studio" class="bg-transparent w-full outline-none text-sm font-medium" />
-                      </div>
-                   </div>
-                   <div class="grid grid-cols-2 gap-3">
-                      <div>
-                          <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Kota / Kab</label>
-                          <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100 relative">
-                            <i data-lucide="map" class="h-4 w-4 text-gray-400 mr-2 flex-shrink-0"></i>
-                            <select id="front-lead-city" onchange="updateDistrictDropdown('front-lead-city', 'front-lead-district')" class="bg-transparent w-full outline-none text-sm font-medium appearance-none"></select>
-                            <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3"></i>
-                          </div>
-                      </div>
-                      <div>
-                          <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Kecamatan</label>
-                          <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100 relative">
-                            <i data-lucide="map-pin" class="h-4 w-4 text-gray-400 mr-2 flex-shrink-0"></i>
-                            <select id="front-lead-district" class="bg-transparent w-full outline-none text-sm font-medium appearance-none"></select>
-                            <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3"></i>
-                          </div>
-                      </div>
-                   </div>
-                   <div>
-                      <label class="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
-                          <span>Budget DP Maksimal</span>
-                          <span id="front-lead-dp-text" class="text-blue-600 font-extrabold">Tanpa DP</span>
-                      </label>
-                      <input id="front-lead-dp" type="range" min="0" max="50" step="1" value="0" oninput="document.getElementById('front-lead-dp-text').innerText = this.value == 0 ? 'Tanpa DP' : 'Rp. ' + this.value + ' Juta'" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                   </div>
-                   <div>
-                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Pilih Promo / Penawaran</label>
-                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                        <i data-lucide="tag" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <select id="front-lead-promo" class="bg-transparent w-full outline-none text-sm font-medium"></select>
-                      </div>
-                   </div>
-                   <div class="border-t border-dashed border-gray-200 my-1"></div>
-                   <div>
-                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Nama Lengkap</label>
-                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                        <i data-lucide="user" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <input id="front-lead-name" type="text" placeholder="Masukkan nama Anda" class="bg-transparent w-full outline-none text-sm font-medium" />
-                      </div>
-                   </div>
-                   <div>
-                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">No. HP / WhatsApp</label>
-                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                        <i data-lucide="smartphone" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <input id="front-lead-phone" type="tel" placeholder="Contoh: 0812xxxx" class="bg-transparent w-full outline-none text-sm font-medium" />
-                      </div>
-                   </div>
-                   <button onclick="handleFrontSearch()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex justify-center items-center gap-2">
-                      <i data-lucide="search" class="h-5 w-5"></i> Mulai Pencarian
-                   </button>
-                </div>
-            </div>
-        </div>
+        <!-- ========================================== -->
+        <!-- FRONTEND SCREENS                             -->
+        <!-- ========================================== -->
 
         <div id="screen-front-home" class="hidden pb-24">
             <nav class="absolute w-full max-w-[430px] z-50 p-5 flex justify-between items-center">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='admin.html'">
                     <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-5 w-5 text-white"></i></div>
-                    <span id="front-agency-name"  class="font-bold text-xl text-white drop-shadow-md cursor-pointer">KPR<span class="text-orange-400">.Asia</span></span>
+                    <span id="front-agency-name" class="font-bold text-xl text-white drop-shadow-md">Properti<span class="text-orange-400">Hub</span></span>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
@@ -170,7 +99,7 @@
 
             <div class="relative pt-24 pb-12 flex items-center min-h-[380px] rounded-b-[2rem] overflow-hidden shadow-sm">
                 <div class="absolute inset-0 z-0">
-                    <img id="front-hero-image" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Hero" onerror="this.src='https://placehold.co/800x600/0f172a/ffffff?text=PropertiHub'" class="w-full h-full object-cover filter brightness-[0.4]" />
+                    <img id="front-hero-image" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" onerror="this.src='https://placehold.co/800x600/2563eb/ffffff?text=PropertiHub'" alt="Hero" class="w-full h-full object-cover filter brightness-[0.4]" />
                 </div>
                 <div class="relative z-10 px-5 w-full text-left">
                     <h1 class="text-3xl font-bold text-white mb-3 leading-tight">Temukan Hunian <br/><span class="text-orange-400">Impian Anda</span></h1>
@@ -192,58 +121,148 @@
                 <div id="front-properties-container" class="flex flex-col gap-5"></div>
                 
                 <div id="front-view-all-btn-container" class="mt-6 text-center hidden">
-                    <button onclick="clearSearchFilters(); navigate('screen-front-all-properties')" class="w-full bg-white text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                    <button onclick="clearSearchFilters(); navigate('screen-front-all-properties');" class="w-full bg-white text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
                         Lihat Semua Properti <i data-lucide="arrow-right" class="h-4 w-4"></i>
                     </button>
                 </div>
             </section>
         </div>
 
+        <div id="screen-front-search" class="hidden relative min-h-screen flex-col justify-end bg-gray-900 pb-24">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" onerror="this.src='https://placehold.co/800x600/1e293b/ffffff?text=Cari'" alt="Background" class="w-full h-full object-cover opacity-40" />
+            </div>
+            <div class="relative z-10 w-full px-5 pt-20">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='admin.html'">
+                        <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg"><i data-lucide="home" class="h-6 w-6 text-white"></i></div>
+                        <span class="font-bold text-2xl text-white drop-shadow-md">Properti<span class="text-orange-400">Hub</span></span>
+                    </div>
+                    <button onclick="toggleDarkMode()" class="bg-white/20 backdrop-blur-md p-2 rounded-full text-white shadow-sm border border-white/30 hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
+                </div>
+                
+                <h1 class="text-3xl font-bold text-white mb-2 leading-tight">Mulai Perjalanan <br/>Menuju <span class="text-orange-400">Rumah Impian</span></h1>
+                <p class="text-sm text-gray-300 mb-6">Lengkapi kriteria properti idaman dan data diri Anda di bawah ini.</p>
+                
+                <div class="bg-white p-5 rounded-3xl shadow-2xl flex flex-col gap-4">
+                   <div>
+                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Jenis Properti</label>
+                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <i data-lucide="building-2" class="h-5 w-5 text-gray-400 mr-3"></i>
+                        <select id="front-lead-type" class="bg-transparent w-full outline-none text-sm font-medium"></select>
+                      </div>
+                   </div>
+                   <div>
+                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Tipe / Ukuran (Opsional)</label>
+                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <i data-lucide="maximize" class="h-5 w-5 text-gray-400 mr-3"></i>
+                        <input id="front-lead-building" type="text" placeholder="Cth: Tipe 36/60, Studio" class="bg-transparent w-full outline-none text-sm font-medium" />
+                      </div>
+                   </div>
+                   <div class="grid grid-cols-2 gap-3">
+                      <div>
+                          <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Kota / Kab</label>
+                          <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100 relative">
+                            <i data-lucide="map" class="h-4 w-4 text-gray-400 mr-2 flex-shrink-0"></i>
+                            <select id="front-lead-city" onchange="updateDistrictDropdown('front-lead-city', 'front-lead-district')" class="bg-transparent w-full outline-none text-sm font-medium appearance-none"><option value="">Semua Kota</option></select>
+                            <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3"></i>
+                          </div>
+                      </div>
+                      <div>
+                          <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Kecamatan</label>
+                          <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100 relative">
+                            <i data-lucide="map-pin" class="h-4 w-4 text-gray-400 mr-2 flex-shrink-0"></i>
+                            <select id="front-lead-district" class="bg-transparent w-full outline-none text-sm font-medium appearance-none"><option value="">Semua Area</option></select>
+                            <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3"></i>
+                          </div>
+                      </div>
+                   </div>
+                   <div>
+                      <label class="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                          <span>Budget DP Maksimal</span>
+                          <span id="front-lead-dp-text" class="text-blue-600 font-extrabold">Tanpa DP</span>
+                      </label>
+                      <input id="front-lead-dp" type="range" min="0" max="50" step="1" value="0" oninput="document.getElementById('front-lead-dp-text').innerText = this.value == 0 ? 'Tanpa DP' : 'Rp. ' + this.value + ' Juta'" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                   </div>
+                   <div>
+                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Pilih Promo / Penawaran</label>
+                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <i data-lucide="tag" class="h-5 w-5 text-gray-400 mr-3"></i>
+                        <select id="front-lead-promo" class="bg-transparent w-full outline-none text-sm font-medium"><option value="-">Tanpa Promo Khusus</option></select>
+                      </div>
+                   </div>
+                   <div class="border-t border-dashed border-gray-200 my-1"></div>
+                   <div>
+                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Nama Lengkap</label>
+                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <i data-lucide="user" class="h-5 w-5 text-gray-400 mr-3"></i>
+                        <input id="front-lead-name" type="text" placeholder="Masukkan nama Anda (Wajib)" class="bg-transparent w-full outline-none text-sm font-medium" />
+                      </div>
+                   </div>
+                   <div>
+                      <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">No. HP / WhatsApp</label>
+                      <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                        <i data-lucide="smartphone" class="h-5 w-5 text-gray-400 mr-3"></i>
+                        <input id="front-lead-phone" type="tel" placeholder="Cth: 0812xxxx (Wajib)" class="bg-transparent w-full outline-none text-sm font-medium" />
+                      </div>
+                   </div>
+                   <button onclick="handleFrontSearch()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex justify-center items-center gap-2">
+                      <i data-lucide="search" class="h-5 w-5"></i> Mulai Pencarian
+                   </button>
+                </div>
+            </div>
+        </div>
+
         <div id="screen-front-all-properties" class="hidden min-h-screen bg-gray-50 pb-24">
-            <div class="bg-blue-700 px-5 pt-12 pb-6 shadow-md text-white flex justify-between items-center sticky top-0 z-50">
+            <div class="bg-blue-700 px-5 pt-12 pb-6 rounded-b-3xl shadow-md text-white flex justify-between items-center sticky top-0 z-50">
                 <div class="flex items-center gap-3">
                     <button onclick="navigate('screen-front-home')" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
                     <div>
-                        <h1 class="font-bold text-lg leading-tight">Semua Properti</h1>
+                        <h1 class="font-bold text-lg leading-tight">Properti Tersedia</h1>
                         <p class="text-[10px] text-blue-200" id="front-all-properties-count">0 Listing Tersedia</p>
                     </div>
                 </div>
                 <button onclick="toggleDarkMode()" class="p-2 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="moon" class="h-5 w-5 theme-icon"></i></button>
             </div>
             
-            <div class="bg-white border-b border-gray-200 px-5 py-4 mb-2 shadow-sm relative z-40">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1"><i data-lucide="filter" class="h-4 w-4 text-blue-600"></i> Filter Pencarian</h3>
-                    <button onclick="clearSearchFilters()" class="text-[10px] font-bold text-red-500 hover:text-red-700 flex items-center gap-1 bg-red-50 px-2 py-1 rounded-md"><i data-lucide="x" class="h-3 w-3"></i> Reset</button>
+            <div class="py-6 px-5 relative">
+                
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 mb-6 z-40 relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold text-gray-800 flex items-center gap-2"><i data-lucide="filter" class="h-4 w-4 text-blue-600"></i> Filter Properti</h3>
+                        <button onclick="clearSearchFilters()" class="text-[10px] font-bold text-red-500 hover:text-red-700 flex items-center gap-1 bg-red-50 px-2.5 py-1.5 rounded-lg transition"><i data-lucide="x" class="h-3 w-3"></i> Hapus Filter</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="relative">
+                            <i data-lucide="building-2" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            <select id="filter-prop-type" onchange="applyFrontFilter()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-9 pr-3 py-3 outline-none appearance-none font-medium cursor-pointer focus:border-blue-500"></select>
+                            <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="relative">
+                                <i data-lucide="map" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                <select id="filter-prop-city" onchange="updateDistrictDropdown('filter-prop-city', 'filter-prop-district'); applyFrontFilter();" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-[11px] rounded-xl pl-8 pr-2 py-3 outline-none appearance-none font-medium cursor-pointer focus:border-blue-500"></select>
+                                <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                            <div class="relative">
+                                <i data-lucide="map-pin" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                <select id="filter-prop-district" onchange="applyFrontFilter()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-[11px] rounded-xl pl-8 pr-2 py-3 outline-none appearance-none font-medium cursor-pointer focus:border-blue-500"></select>
+                                <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="col-span-2 relative">
-                        <i data-lucide="building-2" class="h-3.5 w-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                        <select id="filter-front-type" onchange="applyFrontFilter()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-9 pr-3 py-2.5 outline-none appearance-none font-medium"></select>
-                        <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                    </div>
-                    <div class="relative">
-                        <i data-lucide="map" class="h-3.5 w-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                        <select id="filter-front-city" onchange="applyFrontFilter('city')" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-9 pr-3 py-2.5 outline-none appearance-none font-medium"></select>
-                        <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                    </div>
-                    <div class="relative">
-                        <i data-lucide="map-pin" class="h-3.5 w-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                        <select id="filter-front-district" onchange="applyFrontFilter()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-9 pr-3 py-2.5 outline-none appearance-none font-medium"></select>
-                        <i data-lucide="chevron-down" class="h-3 w-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="py-4 px-5">
+
                 <div id="front-all-properties-container" class="flex flex-col gap-5 mb-8"></div>
+                
                 <div id="front-all-properties-pagination" class="flex justify-center items-center gap-2 flex-wrap"></div>
             </div>
         </div>
 
         <div id="screen-front-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
             <div class="relative h-[350px] w-full group">
-                <img id="front-detail-image" src="" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'" class="w-full h-full object-cover transition-all duration-300" />
+                <img id="front-detail-image" src="" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=Gambar'" class="w-full h-full object-cover transition-all duration-300" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"></div>
                 
                 <div class="absolute top-5 left-5 right-5 flex justify-between items-center z-20">
@@ -343,23 +362,31 @@
     </div>
 
     <script>
+        // ====================================================================
+        // KREDENSIAL SUPABASE (Ubah dengan kredensial asli Anda di masa depan)
+        // ====================================================================
         const SUPABASE_URL = 'https://gncgggdqyltzkbxobcul.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduY2dnZ2RxeWx0emtieG9iY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMjk5NjgsImV4cCI6MjA5NDYwNTk2OH0.UJvjQBhrT0Ju7-MlUcJPKZAzPLmvmbl5k7mBoadCR_E';
+        // ====================================================================
 
         const DB_KEY = 'PH_DB';
-        let appDB = { PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [], SEO: {}, PROPERTY_TYPES: [] };
+        let appDB = { 
+            PROPERTIES: [], VISITORS: [], AGENTS: [], PROMOS: [], USERS: [], AGENCY: {}, LOCATIONS: [], SEO: {}, 
+            PROPERTY_TYPES: [
+                {name: 'Rumah', icon: 'home'}, {name: 'Apartemen', icon: 'building-2'}, 
+                {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
+            ] 
+        };
         
         let selectedFrontPropertyId = null;
         let supabaseClient = null; let isUsingCloud = false;
         let currentDetailImages = []; let currentSlideIndex = 0;
         
-        let currentSearchFilters = null;
+        let currentSearchFilters = { type: "", city: "", district: "" };
         let currentAllPropertiesPage = 1;
-        const PROPERTIES_PER_PAGE = 7;
+        const PROPERTIES_PER_PAGE = 7; 
 
-        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents'];
-        let previousScreen = 'screen-front-home';
-
+        // UI & UTILITIES
         function initTheme() {
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark'); updateThemeIcons(true);
@@ -398,8 +425,9 @@
         }
         function formatRupiah(num) { return 'Rp. ' + new Intl.NumberFormat('id-ID').format(Math.round(num)); }
 
+        // DATABASE INIT
         async function initDB() {
-            showLoading(true, "Menghubungkan Database...");
+            showLoading(true, "Menghubungkan Server...");
             if (SUPABASE_URL && SUPABASE_URL !== 'TARUH_URL_SUPABASE_DISINI' && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'TARUH_ANON_KEY_SUPABASE_DISINI') {
                 try {
                     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -410,19 +438,42 @@
                     } else if (data && data.state) {
                         appDB = data.state; localStorage.setItem(DB_KEY, JSON.stringify(appDB));
                     }
-                    isUsingCloud = true; 
-                    if(document.getElementById('db-status-badge')) {
-                        document.getElementById('db-status-badge').innerText = "Cloud"; 
-                        document.getElementById('db-status-badge').classList.replace('bg-gray-500', 'bg-emerald-500');
-                    }
+                    isUsingCloud = true;
                 } catch(e) { console.error("Supabase fail, fallback to local:", e); loadLocalDB(); }
             } else loadLocalDB();
             
-            applyDynamicSEO(); populatePropertyTypesDropdowns(); populateLocationDropdowns('filter-front-city', 'filter-front-district'); showLoading(false);
+            if (!appDB.PROPERTY_TYPES || appDB.PROPERTY_TYPES.length === 0) {
+                appDB.PROPERTY_TYPES = [
+                    {name: 'Rumah', icon: 'home'}, {name: 'Apartemen', icon: 'building-2'}, 
+                    {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
+                ];
+            }
+            if (!appDB.LOCATIONS || appDB.LOCATIONS.length === 0) {
+                appDB.LOCATIONS = [
+                    { id: 1, city: 'Jakarta Selatan', districts: ['Kebayoran Baru', 'Pondok Indah', 'Kemang', 'Tebet'] },
+                    { id: 2, city: 'Tangerang', districts: ['BSD City', 'Gading Serpong', 'Alam Sutera', 'Bintaro'] }
+                ];
+            }
+            
+            populatePropertyTypesDropdowns(); 
+            populateLocationDropdowns('filter-prop-city', 'filter-prop-district');
+            populateLocationDropdowns('front-lead-city', 'front-lead-district');
+            
+            // CEK URL PARAMETER UNTUK SITEMAP
+            let urlParams = new URLSearchParams(window.location.search);
+            let propId = urlParams.get('id');
+            if (propId) {
+                selectedFrontPropertyId = propId;
+                navigate('screen-front-detail');
+            } else {
+                applyDynamicSEO(); 
+                navigate('screen-front-home'); 
+            }
+            showLoading(false);
         }
 
         function loadLocalDB(updateUI = true) {
-            if(updateUI && document.getElementById('db-status-badge')) { isUsingCloud = false; document.getElementById('db-status-badge').innerText = "Offline"; document.getElementById('db-status-badge').classList.replace('bg-emerald-500', 'bg-gray-500'); }
+            if(updateUI) isUsingCloud = false;
             let dbStr = localStorage.getItem(DB_KEY);
             if (dbStr) appDB = JSON.parse(dbStr);
         }
@@ -432,32 +483,86 @@
             if(isUsingCloud && supabaseClient) supabaseClient.from('propertihub_store').upsert({ id: 1, state: appDB }).then(({error}) => { if(error) console.error("Cloud save error:", error); });
         }
 
+        // SEO DINAMIS JSON-LD
         function applyDynamicSEO(customData = null) {
             let seo = appDB.SEO || {};
             let tTitle = customData?.title || seo.title || 'PropertiHub - Temukan Hunian Impian Anda';
             let tDesc = customData?.description || seo.description || 'Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.';
-            let tKeywords = seo.keywords || 'properti, rumah, apartemen, jual rumah, beli rumah, propertihub';
+            let defaultKeywords = seo.keywords || 'properti, rumah, apartemen, jual rumah, beli rumah, propertihub';
+            
+            let tKeywords = customData?.keywords || defaultKeywords;
             let tImage = customData?.image || seo.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
 
             document.getElementById('page-title').innerText = tTitle; document.getElementById('meta-desc').content = tDesc; document.getElementById('meta-keywords').content = tKeywords;
             document.getElementById('og-title').content = tTitle; document.getElementById('og-desc').content = tDesc; document.getElementById('og-image').content = tImage; document.getElementById('og-url').content = window.location.href;
+
+            // Hapus schema lama jika ada
+            let oldSchema = document.getElementById('seo-schema');
+            if (oldSchema) oldSchema.remove();
+
+            // Pasang Schema JSON-LD baru jika ini adalah halaman detail properti
+            if (customData && customData.isPropertyDetail) {
+                let schemaData = {
+                    "@context": "https://schema.org",
+                    "@type": customData.propType === "Apartemen" ? "Apartment" : customData.propType === "Rumah" ? "SingleFamilyResidence" : "Accommodation",
+                    "name": customData.title,
+                    "description": customData.description,
+                    "image": customData.image,
+                    "url": window.location.href,
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": customData.location || "Indonesia",
+                        "addressCountry": "ID"
+                    }
+                };
+
+                // Jika ada harga, masukkan ke schema
+                if (customData.priceValue) {
+                    schemaData.offers = {
+                        "@type": "Offer",
+                        "priceCurrency": "IDR",
+                        "price": customData.priceValue,
+                        "availability": "https://schema.org/InStock",
+                        "url": window.location.href
+                    };
+                }
+
+                let script = document.createElement('script');
+                script.id = 'seo-schema';
+                script.type = 'application/ld+json';
+                script.text = JSON.stringify(schemaData);
+                document.head.appendChild(script);
+            }
         }
+
+        // NAVIGATION
+        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents'];
+        let previousScreen = 'screen-front-home'; 
 
         function navigate(targetScreen) {
             if (targetScreen === 'screen-front-detail') {
                 screens.forEach(screen => {
                     let el = document.getElementById(screen);
-                    if (el && !el.classList.contains('hidden') && screen !== 'screen-front-detail') { previousScreen = screen; }
+                    if (el && !el.classList.contains('hidden') && screen !== 'screen-front-detail') {
+                        previousScreen = screen;
+                    }
                 });
             }
 
-            screens.forEach(screen => { let el = document.getElementById(screen); if(el){ el.classList.add('hidden'); el.classList.remove('block'); } });
-            document.getElementById(targetScreen).classList.remove('hidden'); document.getElementById(targetScreen).classList.add('block');
+            screens.forEach(screen => { let el = document.getElementById(screen); if(el){ el.classList.add('hidden'); el.classList.remove('block'); if(el.classList.contains('flex')) el.classList.remove('flex'); } });
             
-            document.getElementById('nav-front').classList.remove('hidden'); document.getElementById('nav-front').classList.add('flex');
+            let targetEl = document.getElementById(targetScreen);
+            targetEl.classList.remove('hidden'); 
+            if(targetScreen === 'screen-front-search' || targetScreen === 'screen-front-detail') {
+                targetEl.classList.add('flex');
+            } else {
+                targetEl.classList.add('block');
+            }
+            
+            document.getElementById('nav-front').classList.remove('hidden'); document.getElementById('nav-front').classList.add('flex'); 
 
             if (targetScreen === 'screen-front-home') { applyDynamicSEO(); renderFrontHome(); } 
-            else if (targetScreen === 'screen-front-all-properties') { currentAllPropertiesPage = 1; applyDynamicSEO(); renderFrontAllProperties(); }
+            else if (targetScreen === 'screen-front-all-properties') { applyDynamicSEO(); renderFrontAllProperties(); }
             else if (targetScreen === 'screen-front-search') { applyDynamicSEO(); initFrontSearch(); } 
             else if (targetScreen === 'screen-front-detail') { renderFrontDetail(); } 
             else if (targetScreen === 'screen-front-agents') { applyDynamicSEO(); renderFrontAgents(); } 
@@ -469,8 +574,11 @@
             lucide.createIcons(); window.scrollTo(0,0);
         }
         
-        function goBackFromDetail() { navigate(previousScreen); }
+        function goBackFromDetail() {
+            navigate(previousScreen);
+        }
 
+        // SLIDER FOTO LOGIC
         function updateSlideView(prefix) {
             let imgEl = document.getElementById(`${prefix}-detail-image`); let btnPrev = document.getElementById(`${prefix}-btn-prev`); let btnNext = document.getElementById(`${prefix}-btn-next`); let counter = document.getElementById(`${prefix}-slide-counter`);
             if(currentDetailImages.length > 0) imgEl.src = currentDetailImages[currentSlideIndex];
@@ -480,17 +588,18 @@
         function nextDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex++; if (currentSlideIndex >= currentDetailImages.length) currentSlideIndex = 0; updateSlideView('front'); }
         function prevDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex--; if (currentSlideIndex < 0) currentSlideIndex = currentDetailImages.length - 1; updateSlideView('front'); }
 
+        // DROPDOWNS
         function populatePropertyTypesDropdowns() {
             let html = '<option value="">Semua Jenis Properti</option>';
-            if(appDB.PROPERTY_TYPES) appDB.PROPERTY_TYPES.forEach(pt => { html += `<option value="${pt.name}">${pt.name}</option>`; });
+            appDB.PROPERTY_TYPES.forEach(pt => { html += `<option value="${pt.name}">${pt.name}</option>`; });
             let frontSel = document.getElementById('front-lead-type'); if(frontSel) frontSel.innerHTML = html;
-            let filterFrontSel = document.getElementById('filter-front-type'); if(filterFrontSel) filterFrontSel.innerHTML = html;
+            let filterSel = document.getElementById('filter-prop-type'); if(filterSel) filterSel.innerHTML = html;
         }
 
         function populateLocationDropdowns(cId, dId) {
             let cSel = document.getElementById(cId); if(!cSel) return; 
             cSel.innerHTML = '<option value="">Semua Kota</option>'; 
-            if(appDB.LOCATIONS) appDB.LOCATIONS.forEach(l => cSel.innerHTML += `<option value="${l.city}">${l.city}</option>`); 
+            appDB.LOCATIONS.forEach(l => cSel.innerHTML += `<option value="${l.city}">${l.city}</option>`); 
             updateDistrictDropdown(cId, dId);
         }
 
@@ -498,114 +607,88 @@
             let cVal = document.getElementById(cId).value; let dSel = document.getElementById(dId); if (!dSel) return; 
             dSel.innerHTML = '<option value="">Semua Kecamatan</option>';
             if(cVal) { let loc = appDB.LOCATIONS.find(l => l.city === cVal); if(loc && loc.districts) loc.districts.forEach(d => dSel.innerHTML += `<option value="${d}">${d}</option>`); }
-            
-            if(cId === 'filter-front-city') applyFrontFilter();
         }
 
-        function initFrontSearch() {
-            let promoSelect = document.getElementById('front-lead-promo');
-            if(promoSelect) { promoSelect.innerHTML = '<option value="-">Tanpa Promo Khusus</option>'; if(appDB.PROMOS) appDB.PROMOS.forEach(p => promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`); }
-            populateLocationDropdowns('front-lead-city', 'front-lead-district');
-            populatePropertyTypesDropdowns();
+        // FILTER FUNCTIONS (GLOBAL)
+        function applyFrontFilter() {
+            currentSearchFilters.type = document.getElementById('filter-prop-type').value;
+            currentSearchFilters.city = document.getElementById('filter-prop-city').value;
+            currentSearchFilters.district = document.getElementById('filter-prop-district').value;
+            currentAllPropertiesPage = 1;
+            renderFrontAllProperties();
         }
 
-        function handleFrontSearch() {
-            let name = document.getElementById('front-lead-name').value; 
-            let phone = document.getElementById('front-lead-phone').value;
-            if(!name || !phone) return showModal("Mohon lengkapi Nama dan No. HP!");
+        function clearSearchFilters() {
+            currentSearchFilters = { type: "", city: "", district: "" };
             
-            let type = document.getElementById('front-lead-type').value;
-            let city = document.getElementById('front-lead-city').value; 
-            let district = document.getElementById('front-lead-district').value;
+            let fType = document.getElementById('filter-prop-type'); if(fType) fType.value = "";
+            let fCity = document.getElementById('filter-prop-city'); if(fCity) fCity.value = "";
+            let fDistrict = document.getElementById('filter-prop-district'); if(fDistrict) fDistrict.innerHTML = '<option value="">Semua Kecamatan</option>';
             
-            currentSearchFilters = { type: type, city: city, district: district };
+            let sType = document.getElementById('front-lead-type'); if(sType) sType.value = "";
+            let sCity = document.getElementById('front-lead-city'); if(sCity) sCity.value = "";
+            let sDistrict = document.getElementById('front-lead-district'); if(sDistrict) sDistrict.innerHTML = '<option value="">Semua Kecamatan</option>';
             
-            appDB.VISITORS.unshift({ 
-                id: Date.now(), 
-                name: name, 
-                phone: phone, 
-                type: type || 'Semua Jenis', 
-                building: document.getElementById('front-lead-building').value || '-', 
-                location: district ? `${district}, ${city}` : city || 'Semua Lokasi', 
-                dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', 
-                promo: document.getElementById('front-lead-promo').value, 
-                date: new Date().toLocaleString('id-ID'),
-                status: 'Baru'
-            });
-            saveDB(appDB); 
-            
-            showModal("Berhasil! Tim kami akan menghubungi Anda.", false, () => {
-                navigate('screen-front-all-properties');
-            });
+            currentAllPropertiesPage = 1;
+            if(!document.getElementById('screen-front-all-properties').classList.contains('hidden')) {
+                renderFrontAllProperties();
+            }
         }
 
+        // FRONTEND - HOME
         function renderFrontHome() {
             let agencyName = appDB.AGENCY?.name || 'PropertiHub'; let nameParts = agencyName.split(' ');
             document.getElementById('front-agency-name').innerHTML = `${nameParts[0] || 'Properti'}<span class="text-orange-400">${nameParts[1] || 'Hub'}</span>`;
             
             let promosContainer = document.getElementById('front-promos-container'); promosContainer.innerHTML = '';
-            if (appDB.PROMOS && appDB.PROMOS.length > 0) {
+            if (appDB.PROMOS.length > 0) {
                 let p = appDB.PROMOS[0];
-                promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50">Klaim Promo</button></div>`;
+                promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50">Cari Promonya</button></div>`;
             }
 
             let typesGrid = document.getElementById('front-property-types-grid'); typesGrid.innerHTML = '';
             const colorPalettes = [ {bg: 'bg-blue-100', text: 'text-blue-600'}, {bg: 'bg-orange-100', text: 'text-orange-600'}, {bg: 'bg-green-100', text: 'text-green-600'}, {bg: 'bg-amber-100', text: 'text-amber-600'}, {bg: 'bg-purple-100', text: 'text-purple-600'}, {bg: 'bg-cyan-100', text: 'text-cyan-600'}, {bg: 'bg-pink-100', text: 'text-pink-600'} ];
-            if(appDB.PROPERTY_TYPES) appDB.PROPERTY_TYPES.forEach((pt, idx) => {
+            appDB.PROPERTY_TYPES.forEach((pt, idx) => {
                 let color = colorPalettes[idx % colorPalettes.length];
-                typesGrid.innerHTML += `<div onclick="navigate('screen-front-search')" class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-gray-50 transition-colors"><div class="p-3 rounded-full mb-2 ${color.bg} ${color.text}"><i data-lucide="${pt.icon || 'box'}" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800 text-center line-clamp-1">${pt.name}</span></div>`;
+                typesGrid.innerHTML += `<div onclick="currentSearchFilters.type='${pt.name}'; navigate('screen-front-all-properties');" class="bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-gray-50 transition-colors"><div class="p-3 rounded-full mb-2 ${color.bg} ${color.text}"><i data-lucide="${pt.icon || 'box'}" class="h-5 w-5"></i></div><span class="font-semibold text-[10px] text-gray-800 text-center line-clamp-1">${pt.name}</span></div>`;
             });
 
             let propContainer = document.getElementById('front-properties-container'); propContainer.innerHTML = '';
-            let displayProps = appDB.PROPERTIES ? appDB.PROPERTIES.slice(0, 3) : [];
+            let displayProps = appDB.PROPERTIES.slice(0, 3);
             displayProps.forEach(prop => {
                 let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
-                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
+                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=Gambar'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
             });
 
             let viewAllBtn = document.getElementById('front-view-all-btn-container');
-            if (appDB.PROPERTIES && appDB.PROPERTIES.length > 3) viewAllBtn.classList.remove('hidden'); else viewAllBtn.classList.add('hidden');
-
+            if (appDB.PROPERTIES.length > 3) { viewAllBtn.classList.remove('hidden'); } else { viewAllBtn.classList.add('hidden'); }
             lucide.createIcons();
         }
 
-        function applyFrontFilter() {
-            let t = document.getElementById('filter-front-type').value;
-            let c = document.getElementById('filter-front-city').value;
-            let d = document.getElementById('filter-front-district').value;
-            currentSearchFilters = { type: t, city: c, district: d };
-            currentAllPropertiesPage = 1;
-            renderFrontAllProperties();
-        }
-        
-        function clearSearchFilters() {
-            currentSearchFilters = null;
-            document.getElementById('filter-front-type').value = '';
-            document.getElementById('filter-front-city').value = '';
-            updateDistrictDropdown('filter-front-city', 'filter-front-district');
-            currentAllPropertiesPage = 1;
-            renderFrontAllProperties();
-        }
-
+        // FRONTEND - ALL PROPERTIES & FILTER
         function renderFrontAllProperties() {
             let filteredProps = appDB.PROPERTIES || [];
+            
+            let fType = document.getElementById('filter-prop-type');
+            let fCity = document.getElementById('filter-prop-city');
+            let fDistrict = document.getElementById('filter-prop-district');
 
-            if (currentSearchFilters) {
-                if(document.getElementById('filter-front-type').value !== currentSearchFilters.type) document.getElementById('filter-front-type').value = currentSearchFilters.type || '';
-                if(document.getElementById('filter-front-city').value !== currentSearchFilters.city) {
-                    document.getElementById('filter-front-city').value = currentSearchFilters.city || '';
-                    let cVal = currentSearchFilters.city; let dSel = document.getElementById('filter-front-district');
-                    dSel.innerHTML = '<option value="">Semua Kecamatan</option>';
-                    if(cVal) { let loc = appDB.LOCATIONS.find(l => l.city === cVal); if(loc && loc.districts) loc.districts.forEach(d => dSel.innerHTML += `<option value="${d}">${d}</option>`); }
-                }
-                if(document.getElementById('filter-front-district').value !== currentSearchFilters.district) document.getElementById('filter-front-district').value = currentSearchFilters.district || '';
-
-                if (currentSearchFilters.type && currentSearchFilters.type !== "") filteredProps = filteredProps.filter(p => p.type === currentSearchFilters.type);
-                if (currentSearchFilters.city && currentSearchFilters.city !== "") filteredProps = filteredProps.filter(p => p.location.includes(currentSearchFilters.city));
-                if (currentSearchFilters.district && currentSearchFilters.district !== "") filteredProps = filteredProps.filter(p => p.location.includes(currentSearchFilters.district));
+            // Set UI dropdowns based on currentSearchFilters
+            if (fType && currentSearchFilters.type !== "") fType.value = currentSearchFilters.type;
+            if (fCity && currentSearchFilters.city !== "") { 
+                fCity.value = currentSearchFilters.city; 
+                updateDistrictDropdown('filter-prop-city', 'filter-prop-district'); 
+            }
+            if (fDistrict && currentSearchFilters.district !== "") {
+                setTimeout(() => { fDistrict.value = currentSearchFilters.district; }, 50);
             }
 
-            document.getElementById('front-all-properties-count').innerText = `${filteredProps.length} Listing Ditemukan`;
+            // Apply filters to data array
+            if(currentSearchFilters.type && currentSearchFilters.type !== "") filteredProps = filteredProps.filter(p => p.type === currentSearchFilters.type);
+            if(currentSearchFilters.city && currentSearchFilters.city !== "") filteredProps = filteredProps.filter(p => p.location && p.location.includes(currentSearchFilters.city));
+            if(currentSearchFilters.district && currentSearchFilters.district !== "") filteredProps = filteredProps.filter(p => p.location && p.location.includes(currentSearchFilters.district));
+
+            document.getElementById('front-all-properties-count').innerText = `${filteredProps.length} Listing Tersedia`;
             let propContainer = document.getElementById('front-all-properties-container');
             let paginationContainer = document.getElementById('front-all-properties-pagination');
             
@@ -613,7 +696,7 @@
             paginationContainer.innerHTML = '';
             
             if(filteredProps.length === 0) {
-                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Properti dengan kriteria tersebut tidak ditemukan.</div>`;
+                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Maaf, properti tidak ditemukan pada filter ini.</div>`;
                 return;
             }
 
@@ -627,7 +710,7 @@
 
             currentProperties.forEach(prop => {
                 let bdg = prop.promoIds && prop.promoIds.length > 0 ? `<div class="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] uppercase font-bold shadow-sm text-white bg-gradient-to-r from-green-500 to-emerald-600"><i data-lucide="tag" class="h-3 w-3 inline"></i> Promo</div>` : '';
-                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
+                propContainer.innerHTML += `<div onclick="selectedFrontPropertyId='${prop.id}'; navigate('screen-front-detail')" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer w-full"><div class="relative overflow-hidden aspect-[4/3]"><img src="${prop.image}" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=Gambar'" class="w-full h-full object-cover" /><div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-800 shadow-sm">${prop.type}</div>${bdg}</div><div class="p-5"><h3 class="text-xl font-extrabold text-blue-600 mb-1">${prop.price || 'Harga Menyusul'}</h3><p class="font-bold text-gray-900 mb-1.5 truncate text-sm">${prop.title}</p><div class="flex items-center text-gray-500 text-xs mb-4"><i data-lucide="map-pin" class="h-3.5 w-3.5 mr-1 text-red-500"></i><span class="truncate">${prop.location}</span></div><div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100"><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">DP Mulai</span><span class="text-xs font-bold text-orange-600">${prop.dp || '-'}</span></div><div><span class="block text-[9px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Terima Kunci</span><span class="text-xs font-bold text-green-600">${prop.allInCost || '-'}</span></div></div></div></div>`;
             });
 
             if (totalPages > 1) {
@@ -645,11 +728,32 @@
 
             lucide.createIcons();
         }
-        function goToAllPropertiesPage(page) { currentAllPropertiesPage = page; renderFrontAllProperties(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+        function goToAllPropertiesPage(page) {
+            currentAllPropertiesPage = page;
+            renderFrontAllProperties();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // FRONTEND - DETAIL
         function renderFrontDetail() {
             let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId)); if(!prop) return navigate('screen-front-home');
-            applyDynamicSEO({ title: `${prop.title} | PropertiHub`, description: prop.description, image: prop.image });
+            
+            // Auto SEO Keywords for this specific property
+            let pLocation = prop.location ? prop.location.split(',').join(' ') : 'Indonesia';
+            let dynamicKeywords = `jual ${prop.type}, properti ${pLocation}, ${prop.type} ${pLocation}, harga ${prop.type} ${pLocation}, beli rumah, ${prop.title}`;
+            let rawPrice = parseInt(prop.price.replace(/[^0-9]/g, '')) || 0;
+
+            applyDynamicSEO({ 
+                title: prop.seoTitle || `${prop.title} | PropertiHub`, 
+                description: prop.seoDesc || prop.description, 
+                image: prop.image,
+                keywords: prop.seoKeywords || dynamicKeywords,
+                isPropertyDetail: true,
+                propType: prop.type,
+                priceValue: rawPrice,
+                location: prop.location
+            });
 
             currentDetailImages = (prop.images && prop.images.length > 0) ? prop.images : [prop.image]; currentSlideIndex = 0; updateSlideView('front');
 
@@ -669,11 +773,13 @@
             let promosContainer = document.getElementById('front-detail-promos'); promosContainer.innerHTML = '';
             if (prop.promoIds && prop.promoIds.length > 0) { appDB.PROMOS.filter(p => prop.promoIds.includes(p.id)).forEach(p => { promosContainer.innerHTML += `<span class="bg-orange-50 text-orange-600 border border-orange-100 px-2 py-1 rounded-md text-[10px] font-bold shadow-sm flex items-center gap-1"><i data-lucide="tag" class="h-3 w-3"></i>${p.badge}</span>`; }); }
 
-            document.getElementById('kpr-base-price').value = parseInt(prop.price.replace(/[^0-9]/g, '')) || 1000000000; updateKPR();
+            document.getElementById('kpr-base-price').value = rawPrice || 1000000000; updateKPR();
 
-            let agent = (appDB.AGENTS && appDB.AGENTS.length > 0) ? appDB.AGENTS[0] : { name: 'Agen', role: 'Support', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80'};
+            let agent = appDB.AGENTS.length > 0 ? appDB.AGENTS[0] : { name: 'Agen', role: 'Support', phone: '081234567890', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80'};
             document.getElementById('front-agent-image').src = agent.image; document.getElementById('front-agent-name').innerText = agent.name; document.getElementById('front-agent-role').innerText = agent.role;
-            let cleanPhone = agent.phone.replace(/[^0-9]/g, ''); document.getElementById('front-btn-wa').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo, saya tertarik dengan ${prop.title}`)}`; document.getElementById('front-btn-call').href = `tel:${cleanPhone}`;
+            let cleanPhone = agent.phone.replace(/[^0-9]/g, ''); 
+            if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
+            document.getElementById('front-btn-wa').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Halo, saya tertarik dengan listing: ${prop.title}. Bisa dibantu?`)}`; document.getElementById('front-btn-call').href = `tel:${cleanPhone}`;
         }
 
         function toggleDesc() {
@@ -686,48 +792,99 @@
             let price = parseFloat(document.getElementById('kpr-base-price').value) || 0;
             let dpPct = document.getElementById('kpr-dp-range').value; let years = document.getElementById('kpr-year-range').value;
             document.getElementById('kpr-dp-text').innerText = dpPct + '%'; document.getElementById('kpr-year-text').innerText = years + ' Tahun';
-            let dpAmount = price * (dpPct / 100); let loanAmount = price - dpAmount; let r = (appDB.AGENCY?.kprInterest || 5.5) / 100 / 12; let n = years * 12;
+            let dpAmount = price * (dpPct / 100); let loanAmount = price - dpAmount; let r = (appDB.AGENCY.kprInterest || 5.5) / 100 / 12; let n = years * 12;
             let emi = loanAmount > 0 && r > 0 ? (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : loanAmount / n;
             document.getElementById('kpr-result-text').innerHTML = formatRupiah(emi) + '<span class="text-xs text-white font-normal">/bln</span>';
         }
 
         function shareProperty() {
-            // Membentuk URL unik untuk dibagikan (Berguna untuk Sitemap & Share WA)
-            const propUrl = window.location.origin + window.location.pathname + '?id=' + selectedFrontPropertyId;
-            if (navigator.share) navigator.share({ title: document.getElementById('front-detail-title').innerText, url: propUrl });
-            else { navigator.clipboard.writeText(propUrl); showModal("Link disalin!"); }
+            // share with Permalink or ID parameter
+            let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId));
+            let linkParam = (prop && prop.permalink) ? `?p=${prop.permalink}` : `?id=${selectedFrontPropertyId}`;
+            let shareUrl = window.location.href.split('?')[0] + linkParam;
+            
+            if (navigator.share) navigator.share({ title: document.getElementById('front-detail-title').innerText, url: shareUrl });
+            else { navigator.clipboard.writeText(shareUrl); showModal("Link disalin!"); }
         }
 
+        // FRONTEND - SEARCH FORM
+        function initFrontSearch() {
+            let promoSelect = document.getElementById('front-lead-promo');
+            if(promoSelect) { promoSelect.innerHTML = '<option value="-">Tanpa Promo Khusus</option>'; appDB.PROMOS.forEach(p => promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`); }
+            
+            // Set current filters if exist
+            if(currentSearchFilters.type) document.getElementById('front-lead-type').value = currentSearchFilters.type;
+            if(currentSearchFilters.city) document.getElementById('front-lead-city').value = currentSearchFilters.city;
+            updateDistrictDropdown('front-lead-city', 'front-lead-district');
+            if(currentSearchFilters.district) {
+                setTimeout(() => { document.getElementById('front-lead-district').value = currentSearchFilters.district; }, 50);
+            }
+        }
+
+        function handleFrontSearch() {
+            let name = document.getElementById('front-lead-name').value; 
+            let phone = document.getElementById('front-lead-phone').value;
+            let type = document.getElementById('front-lead-type').value;
+            let city = document.getElementById('front-lead-city').value;
+            let district = document.getElementById('front-lead-district').value;
+            
+            // Jika form diisi nama & nomor HP, simpan sebagai Leads
+            if(name && phone) {
+                appDB.VISITORS.unshift({ id: Date.now(), name: name, phone: phone, type: type || 'Semua Jenis', building: document.getElementById('front-lead-building').value || '-', location: district ? `${district}, ${city}` : city || 'Semua Lokasi', dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', promo: document.getElementById('front-lead-promo').value, status: 'Baru', date: new Date().toLocaleString('id-ID') });
+                saveDB(appDB); 
+            }
+
+            // Set filter parameters
+            currentSearchFilters.type = type;
+            currentSearchFilters.city = city;
+            currentSearchFilters.district = district;
+            
+            showLoading(true, "Mencari properti...");
+            setTimeout(() => {
+                currentAllPropertiesPage = 1;
+                showLoading(false);
+                navigate('screen-front-all-properties');
+            }, 500);
+        }
+
+        // FRONTEND - AGENTS
         function renderFrontAgents() { 
-            let c = document.getElementById('front-agents-container'); c.innerHTML=''; 
-            if(appDB.AGENTS) appDB.AGENTS.forEach(a => { 
-                let cleanPhone = a.phone.replace(/[^0-9]/g, '');
-                c.innerHTML += `<div class="bg-white p-4 rounded-xl border border-gray-100 flex gap-4 items-center shadow-sm"><img src="${a.image}" onerror="this.src='https://placehold.co/100x100/eeeeee/999999?text=Agen'" class="w-14 h-14 rounded-full object-cover border"/><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${a.name}</h4><p class="text-[10px] text-gray-500 mb-2">${a.role}</p><a href="https://wa.me/${cleanPhone}" target="_blank" class="bg-green-50 text-green-600 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-green-100 inline-flex items-center gap-1 hover:bg-green-100"><i data-lucide="message-circle" class="h-3 w-3"></i> WhatsApp</a></div></div>`; 
+            let c = document.getElementById('front-agents-container'); 
+            c.innerHTML=''; 
+            appDB.AGENTS.forEach(a => { 
+                let cleanPhone = a.phone.replace(/[^0-9]/g, ''); 
+                if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
+                c.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center mb-3"><img src="${a.image}" onerror="this.src='https://placehold.co/100x100/eeeeee/999999?text=Agen'" class="w-14 h-14 rounded-full object-cover"/><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${a.name}</h4><p class="text-[10px] text-gray-500">${a.role}</p></div><div class="flex gap-2"><a href="tel:${cleanPhone}" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition"><i data-lucide="phone" class="h-4 w-4"></i></a><a href="https://wa.me/${cleanPhone}?text=Halo,%20saya%20butuh%20bantuan%20mencari%20properti" target="_blank" class="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition"><i data-lucide="message-circle" class="h-4 w-4"></i></a></div></div>`; 
             }); 
             lucide.createIcons(); 
         }
 
+        // ==========================================
+        // MAIN STARTUP INITIALIZATION
+        // ==========================================
         window.onload = async function() { 
             initTheme(); 
             await initDB(); 
-
-            // Cek apakah ada parameter URL (contoh: ?id=12345) untuk fitur Sitemap/Share
-            const urlParams = new URLSearchParams(window.location.search);
-            const propId = urlParams.get('id');
-
-            if (propId) {
-                // Pastikan properti dengan ID tersebut ada di database
-                const propExists = appDB.PROPERTIES.find(p => String(p.id) === String(propId));
-                if (propExists) {
-                    selectedFrontPropertyId = propId;
+            
+            let urlParams = new URLSearchParams(window.location.search);
+            let propId = urlParams.get('id');
+            let permalink = urlParams.get('p');
+            
+            if (permalink) {
+                let foundProp = appDB.PROPERTIES.find(p => p.permalink === permalink);
+                if (foundProp) {
+                    selectedFrontPropertyId = foundProp.id;
                     navigate('screen-front-detail');
                 } else {
-                    navigate('screen-front-search'); 
+                    navigate('screen-front-home'); // Fallback jika permalink tidak ditemukan
                 }
+            } else if (propId) {
+                selectedFrontPropertyId = propId;
+                navigate('screen-front-detail');
             } else {
-                navigate('screen-front-search'); 
+                navigate('screen-front-home'); 
             }
-
+            
             lucide.createIcons(); 
         };
     </script>
