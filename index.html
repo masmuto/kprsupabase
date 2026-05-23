@@ -20,7 +20,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <!-- SUPABASE JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -58,8 +57,6 @@
         html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; border-color: rgba(34, 197, 94, 0.2) !important; color: #86efac !important; }
         html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; color: #fca5a5 !important; }
         html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.1) !important; border-color: rgba(99, 102, 241, 0.2) !important; color: #a5b4fc !important; }
-        html.dark .bg-cyan-50 { background-color: rgba(6, 182, 212, 0.1) !important; border-color: rgba(6, 182, 212, 0.2) !important; color: #67e8f9 !important; }
-        html.dark .bg-purple-50 { background-color: rgba(168, 85, 247, 0.1) !important; border-color: rgba(168, 85, 247, 0.2) !important; color: #d8b4fe !important; }
     </style>
 </head>
 <body class="bg-gray-200 text-gray-900 flex justify-center">
@@ -82,10 +79,6 @@
 
     <div id="app-container" class="w-full max-w-[430px] min-h-screen bg-gray-50 relative overflow-x-hidden sm:border-x sm:border-gray-300 shadow-2xl">
 
-        <!-- ========================================== -->
-        <!-- FRONTEND SCREENS                             -->
-        <!-- ========================================== -->
-
         <div id="screen-front-home" class="hidden pb-24">
             <nav class="absolute w-full max-w-[430px] z-50 p-5 flex justify-between items-center">
                 <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='admin.html'">
@@ -104,7 +97,7 @@
                 <div class="relative z-10 px-5 w-full text-left">
                     <h1 class="text-3xl font-bold text-white mb-3 leading-tight">Temukan Hunian <br/><span class="text-orange-400">Impian Anda</span></h1>
                     <p id="front-hero-subtitle" class="text-sm text-gray-200 mb-6 max-w-[280px]">Jelajahi berbagai properti eksklusif di seluruh Indonesia.</p>
-                    <button onclick="navigate('screen-front-search')" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold shadow-md flex items-center gap-2"><i data-lucide="search" class="h-4 w-4"></i> Cari Properti</button>
+                    <button onclick="navigate('screen-front-search')" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold shadow-md flex items-center gap-2 hover:bg-gray-50 transition"><i data-lucide="search" class="h-4 w-4"></i> Temukan Properti</button>
                 </div>
             </div>
 
@@ -196,14 +189,14 @@
                       <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">Nama Lengkap</label>
                       <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
                         <i data-lucide="user" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <input id="front-lead-name" type="text" placeholder="Masukkan nama Anda (Wajib)" class="bg-transparent w-full outline-none text-sm font-medium" />
+                        <input id="front-lead-name" type="text" placeholder="Masukkan nama Anda (Opsional)" class="bg-transparent w-full outline-none text-sm font-medium" />
                       </div>
                    </div>
                    <div>
                       <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 block">No. HP / WhatsApp</label>
                       <div class="flex items-center bg-gray-50 p-3.5 rounded-xl border border-gray-100">
                         <i data-lucide="smartphone" class="h-5 w-5 text-gray-400 mr-3"></i>
-                        <input id="front-lead-phone" type="tel" placeholder="Cth: 0812xxxx (Wajib)" class="bg-transparent w-full outline-none text-sm font-medium" />
+                        <input id="front-lead-phone" type="tel" placeholder="Cth: 0812xxxx (Opsional)" class="bg-transparent w-full outline-none text-sm font-medium" />
                       </div>
                    </div>
                    <button onclick="handleFrontSearch()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex justify-center items-center gap-2">
@@ -260,7 +253,7 @@
             </div>
         </div>
 
-        <div id="screen-front-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex flex-col">
+        <div id="screen-front-detail" class="hidden min-h-screen bg-gray-50 pb-24 relative w-full flex-col">
             <div class="relative h-[350px] w-full group">
                 <img id="front-detail-image" src="" onerror="this.src='https://placehold.co/800x600/eeeeee/999999?text=Gambar'" class="w-full h-full object-cover transition-all duration-300" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60"></div>
@@ -354,9 +347,9 @@
         </div>
 
         <div id="nav-front" class="hidden fixed bottom-0 w-full max-w-[430px] bg-white border-t border-gray-100 z-40 justify-around items-center py-3 px-2 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-            <button onclick="navigate('screen-front-home')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="home" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Beranda</span></button>
-            <button onclick="navigate('screen-front-search')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="search" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Cari</span></button>
-            <button onclick="navigate('screen-front-agents')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn"><i data-lucide="contact" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Agen</span></button>
+            <button onclick="navigate('screen-front-home')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn transition-colors"><i data-lucide="home" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Beranda</span></button>
+            <button onclick="navigate('screen-front-search')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn transition-colors"><i data-lucide="search" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Cari</span></button>
+            <button onclick="navigate('screen-front-agents')" class="flex flex-col items-center text-gray-400 hover:text-blue-600 w-14 nav-front-btn transition-colors"><i data-lucide="contact" class="h-6 w-6 mb-1"></i><span class="text-[10px] font-medium">Agen</span></button>
         </div>
 
     </div>
@@ -377,6 +370,9 @@
                 {name: 'Ruko', icon: 'building'}, {name: 'Tanah', icon: 'trees'}, {name: 'Villa', icon: 'tent'}
             ] 
         };
+        
+        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents'];
+        let previousScreen = 'screen-front-home'; 
         
         let selectedFrontPropertyId = null;
         let supabaseClient = null; let isUsingCloud = false;
@@ -425,7 +421,6 @@
         }
         function formatRupiah(num) { return 'Rp. ' + new Intl.NumberFormat('id-ID').format(Math.round(num)); }
 
-        // DATABASE INIT
         async function initDB() {
             showLoading(true, "Menghubungkan Server...");
             if (SUPABASE_URL && SUPABASE_URL !== 'TARUH_URL_SUPABASE_DISINI' && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'TARUH_ANON_KEY_SUPABASE_DISINI') {
@@ -459,16 +454,6 @@
             populateLocationDropdowns('filter-prop-city', 'filter-prop-district');
             populateLocationDropdowns('front-lead-city', 'front-lead-district');
             
-            // CEK URL PARAMETER UNTUK SITEMAP
-            let urlParams = new URLSearchParams(window.location.search);
-            let propId = urlParams.get('id');
-            if (propId) {
-                selectedFrontPropertyId = propId;
-                navigate('screen-front-detail');
-            } else {
-                applyDynamicSEO(); 
-                navigate('screen-front-home'); 
-            }
             showLoading(false);
         }
 
@@ -483,7 +468,6 @@
             if(isUsingCloud && supabaseClient) supabaseClient.from('propertihub_store').upsert({ id: 1, state: appDB }).then(({error}) => { if(error) console.error("Cloud save error:", error); });
         }
 
-        // SEO DINAMIS JSON-LD
         function applyDynamicSEO(customData = null) {
             let seo = appDB.SEO || {};
             let tTitle = customData?.title || seo.title || 'PropertiHub - Temukan Hunian Impian Anda';
@@ -496,37 +480,43 @@
             document.getElementById('page-title').innerText = tTitle; document.getElementById('meta-desc').content = tDesc; document.getElementById('meta-keywords').content = tKeywords;
             document.getElementById('og-title').content = tTitle; document.getElementById('og-desc').content = tDesc; document.getElementById('og-image').content = tImage; document.getElementById('og-url').content = window.location.href;
 
-            // Hapus schema lama jika ada
             let oldSchema = document.getElementById('seo-schema');
             if (oldSchema) oldSchema.remove();
 
-            // Pasang Schema JSON-LD baru jika ini adalah halaman detail properti
+            let schemaData = null;
+
             if (customData && customData.isPropertyDetail) {
-                let schemaData = {
+                schemaData = {
                     "@context": "https://schema.org",
                     "@type": customData.propType === "Apartemen" ? "Apartment" : customData.propType === "Rumah" ? "SingleFamilyResidence" : "Accommodation",
                     "name": customData.title,
                     "description": customData.description,
                     "image": customData.image,
                     "url": window.location.href,
-                    "address": {
-                        "@type": "PostalAddress",
-                        "addressLocality": customData.location || "Indonesia",
-                        "addressCountry": "ID"
-                    }
+                    "address": { "@type": "PostalAddress", "addressLocality": customData.location || "Indonesia", "addressCountry": "ID" }
                 };
-
-                // Jika ada harga, masukkan ke schema
                 if (customData.priceValue) {
-                    schemaData.offers = {
-                        "@type": "Offer",
-                        "priceCurrency": "IDR",
-                        "price": customData.priceValue,
-                        "availability": "https://schema.org/InStock",
-                        "url": window.location.href
-                    };
+                    schemaData.offers = { "@type": "Offer", "priceCurrency": "IDR", "price": customData.priceValue, "availability": "https://schema.org/InStock", "url": window.location.href };
                 }
+            } else {
+                let aName = appDB.AGENCY?.name || 'PropertiHub';
+                let aPhone = appDB.AGENCY?.phone || '';
+                let aAddress = appDB.AGENCY?.address || 'Indonesia';
+                let baseUrl = appDB.SEO?.frontendUrl || window.location.origin;
+                
+                schemaData = {
+                    "@context": "https://schema.org",
+                    "@type": "RealEstateAgent",
+                    "name": aName,
+                    "image": tImage,
+                    "@id": baseUrl + "/#organization",
+                    "url": baseUrl,
+                    "telephone": aPhone,
+                    "address": { "@type": "PostalAddress", "streetAddress": aAddress, "addressCountry": "ID" }
+                };
+            }
 
+            if (schemaData) {
                 let script = document.createElement('script');
                 script.id = 'seo-schema';
                 script.type = 'application/ld+json';
@@ -534,10 +524,6 @@
                 document.head.appendChild(script);
             }
         }
-
-        // NAVIGATION
-        const screens = ['screen-front-home', 'screen-front-search', 'screen-front-detail', 'screen-front-all-properties', 'screen-front-agents'];
-        let previousScreen = 'screen-front-home'; 
 
         function navigate(targetScreen) {
             if (targetScreen === 'screen-front-detail') {
@@ -549,36 +535,93 @@
                 });
             }
 
-            screens.forEach(screen => { let el = document.getElementById(screen); if(el){ el.classList.add('hidden'); el.classList.remove('block'); if(el.classList.contains('flex')) el.classList.remove('flex'); } });
-            
-            let targetEl = document.getElementById(targetScreen);
-            targetEl.classList.remove('hidden'); 
-            if(targetScreen === 'screen-front-search' || targetScreen === 'screen-front-detail') {
-                targetEl.classList.add('flex');
+            // History Push State API
+            if (targetScreen === 'screen-front-detail') {
+                let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId));
+                if (prop) {
+                    let linkParam = prop.permalink ? `?p=${prop.permalink}` : `?id=${prop.id}`;
+                    if (window.location.search !== linkParam) {
+                        window.history.pushState({ screen: targetScreen }, '', window.location.pathname + linkParam);
+                    }
+                }
             } else {
-                targetEl.classList.add('block');
+                if (window.location.search !== '') {
+                    window.history.pushState({ screen: targetScreen }, '', window.location.pathname);
+                }
+            }
+
+            // Sembunyikan semua layar
+            screens.forEach(screen => { 
+                let el = document.getElementById(screen); 
+                if(el){ el.classList.add('hidden'); el.classList.remove('block', 'flex'); } 
+            });
+            
+            // Tampilkan Layar Target dengan Benar (Krusial: Menghindari Blank Screen)
+            let targetEl = document.getElementById(targetScreen);
+            if(targetEl) {
+                targetEl.classList.remove('hidden');
+                if(targetScreen === 'screen-front-search' || targetScreen === 'screen-front-detail') {
+                    targetEl.classList.add('flex');
+                } else {
+                    targetEl.classList.add('block');
+                }
+            }
+
+            // Manajemen Navigasi Bawah (Nav Bar)
+            let nav = document.getElementById('nav-front');
+            if (targetScreen === 'screen-front-home' || targetScreen === 'screen-front-search' || targetScreen === 'screen-front-agents') {
+                if(nav) { nav.classList.remove('hidden'); nav.classList.add('flex'); }
+            } else {
+                if(nav) { nav.classList.add('hidden'); nav.classList.remove('flex'); }
             }
             
-            document.getElementById('nav-front').classList.remove('hidden'); document.getElementById('nav-front').classList.add('flex'); 
+            // Panggil fungsi render yang sesuai
+            if (targetScreen === 'screen-front-home') {
+                applyDynamicSEO();
+                renderFrontHome();
+            } else if (targetScreen === 'screen-front-search') {
+                initFrontSearch();
+            } else if (targetScreen === 'screen-front-detail') {
+                renderFrontDetail();
+            } else if (targetScreen === 'screen-front-all-properties') {
+                renderFrontAllProperties();
+            } else if (targetScreen === 'screen-front-agents') {
+                renderFrontAgents();
+            }
 
-            if (targetScreen === 'screen-front-home') { applyDynamicSEO(); renderFrontHome(); } 
-            else if (targetScreen === 'screen-front-all-properties') { applyDynamicSEO(); renderFrontAllProperties(); }
-            else if (targetScreen === 'screen-front-search') { applyDynamicSEO(); initFrontSearch(); } 
-            else if (targetScreen === 'screen-front-detail') { renderFrontDetail(); } 
-            else if (targetScreen === 'screen-front-agents') { applyDynamicSEO(); renderFrontAgents(); } 
+            // Atur highlight warna navigasi aktif
+            document.querySelectorAll('.nav-front-btn').forEach(btn => {
+                btn.classList.remove('text-blue-600');
+                btn.classList.add('text-gray-400');
+            });
 
-            document.querySelectorAll('.nav-front-btn').forEach(btn => btn.classList.remove('text-blue-600'));
-            if(targetScreen === 'screen-front-home' || targetScreen === 'screen-front-all-properties') document.querySelectorAll('.nav-front-btn')[0].classList.add('text-blue-600');
-            if(targetScreen === 'screen-front-search') document.querySelectorAll('.nav-front-btn')[1].classList.add('text-blue-600');
-            if(targetScreen === 'screen-front-agents') document.querySelectorAll('.nav-front-btn')[2].classList.add('text-blue-600');
-            lucide.createIcons(); window.scrollTo(0,0);
+            if(targetScreen === 'screen-front-home') { document.querySelectorAll('.nav-front-btn')[0].classList.add('text-blue-600'); document.querySelectorAll('.nav-front-btn')[0].classList.remove('text-gray-400'); }
+            if(targetScreen === 'screen-front-search') { document.querySelectorAll('.nav-front-btn')[1].classList.add('text-blue-600'); document.querySelectorAll('.nav-front-btn')[1].classList.remove('text-gray-400'); }
+            if(targetScreen === 'screen-front-agents') { document.querySelectorAll('.nav-front-btn')[2].classList.add('text-blue-600'); document.querySelectorAll('.nav-front-btn')[2].classList.remove('text-gray-400'); }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons(); 
+            window.scrollTo(0,0);
         }
         
         function goBackFromDetail() {
             navigate(previousScreen);
         }
 
-        // SLIDER FOTO LOGIC
+        window.onpopstate = function(event) {
+            let urlParams = new URLSearchParams(window.location.search);
+            let p = urlParams.get('p');
+            let id = urlParams.get('id');
+            if (p || id) {
+                let foundProp = appDB.PROPERTIES.find(prop => prop.permalink === p || String(prop.id) === id);
+                if (foundProp) {
+                    selectedFrontPropertyId = foundProp.id;
+                    navigate('screen-front-detail');
+                } else navigate('screen-front-home');
+            } else {
+                navigate('screen-front-home');
+            }
+        };
+
         function updateSlideView(prefix) {
             let imgEl = document.getElementById(`${prefix}-detail-image`); let btnPrev = document.getElementById(`${prefix}-btn-prev`); let btnNext = document.getElementById(`${prefix}-btn-next`); let counter = document.getElementById(`${prefix}-slide-counter`);
             if(currentDetailImages.length > 0) imgEl.src = currentDetailImages[currentSlideIndex];
@@ -588,7 +631,6 @@
         function nextDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex++; if (currentSlideIndex >= currentDetailImages.length) currentSlideIndex = 0; updateSlideView('front'); }
         function prevDetailImage() { if (currentDetailImages.length <= 1) return; currentSlideIndex--; if (currentSlideIndex < 0) currentSlideIndex = currentDetailImages.length - 1; updateSlideView('front'); }
 
-        // DROPDOWNS
         function populatePropertyTypesDropdowns() {
             let html = '<option value="">Semua Jenis Properti</option>';
             appDB.PROPERTY_TYPES.forEach(pt => { html += `<option value="${pt.name}">${pt.name}</option>`; });
@@ -609,7 +651,6 @@
             if(cVal) { let loc = appDB.LOCATIONS.find(l => l.city === cVal); if(loc && loc.districts) loc.districts.forEach(d => dSel.innerHTML += `<option value="${d}">${d}</option>`); }
         }
 
-        // FILTER FUNCTIONS (GLOBAL)
         function applyFrontFilter() {
             currentSearchFilters.type = document.getElementById('filter-prop-type').value;
             currentSearchFilters.city = document.getElementById('filter-prop-city').value;
@@ -635,7 +676,6 @@
             }
         }
 
-        // FRONTEND - HOME
         function renderFrontHome() {
             let agencyName = appDB.AGENCY?.name || 'PropertiHub'; let nameParts = agencyName.split(' ');
             document.getElementById('front-agency-name').innerHTML = `${nameParts[0] || 'Properti'}<span class="text-orange-400">${nameParts[1] || 'Hub'}</span>`;
@@ -643,7 +683,7 @@
             let promosContainer = document.getElementById('front-promos-container'); promosContainer.innerHTML = '';
             if (appDB.PROMOS.length > 0) {
                 let p = appDB.PROMOS[0];
-                promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50">Cari Promonya</button></div>`;
+                promosContainer.innerHTML = `<div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-md relative overflow-hidden"><div class="relative z-10 mb-4"><span class="bg-white/20 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm mb-3 inline-block uppercase tracking-wider">${p.badge}</span><h2 class="text-xl font-bold mb-2">${p.title}</h2><p class="text-orange-50 text-xs">${p.subtitle}</p></div><button onclick="navigate('screen-front-search')" class="relative z-10 w-full bg-white text-orange-600 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50 transition">Cari Promonya</button></div>`;
             }
 
             let typesGrid = document.getElementById('front-property-types-grid'); typesGrid.innerHTML = '';
@@ -662,10 +702,9 @@
 
             let viewAllBtn = document.getElementById('front-view-all-btn-container');
             if (appDB.PROPERTIES.length > 3) { viewAllBtn.classList.remove('hidden'); } else { viewAllBtn.classList.add('hidden'); }
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // FRONTEND - ALL PROPERTIES & FILTER
         function renderFrontAllProperties() {
             let filteredProps = appDB.PROPERTIES || [];
             
@@ -673,7 +712,6 @@
             let fCity = document.getElementById('filter-prop-city');
             let fDistrict = document.getElementById('filter-prop-district');
 
-            // Set UI dropdowns based on currentSearchFilters
             if (fType && currentSearchFilters.type !== "") fType.value = currentSearchFilters.type;
             if (fCity && currentSearchFilters.city !== "") { 
                 fCity.value = currentSearchFilters.city; 
@@ -683,7 +721,6 @@
                 setTimeout(() => { fDistrict.value = currentSearchFilters.district; }, 50);
             }
 
-            // Apply filters to data array
             if(currentSearchFilters.type && currentSearchFilters.type !== "") filteredProps = filteredProps.filter(p => p.type === currentSearchFilters.type);
             if(currentSearchFilters.city && currentSearchFilters.city !== "") filteredProps = filteredProps.filter(p => p.location && p.location.includes(currentSearchFilters.city));
             if(currentSearchFilters.district && currentSearchFilters.district !== "") filteredProps = filteredProps.filter(p => p.location && p.location.includes(currentSearchFilters.district));
@@ -696,7 +733,7 @@
             paginationContainer.innerHTML = '';
             
             if(filteredProps.length === 0) {
-                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100">Maaf, properti tidak ditemukan pada filter ini.</div>`;
+                propContainer.innerHTML = `<div class="text-center text-gray-500 text-sm py-10 bg-white rounded-2xl border border-gray-100 shadow-sm">Maaf, properti tidak ditemukan pada filter ini.</div>`;
                 return;
             }
 
@@ -726,7 +763,7 @@
                 nextBtn.onclick = () => { if(currentAllPropertiesPage < totalPages) goToAllPropertiesPage(currentAllPropertiesPage + 1); }; paginationContainer.appendChild(nextBtn);
             }
 
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function goToAllPropertiesPage(page) {
@@ -735,11 +772,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // FRONTEND - DETAIL
         function renderFrontDetail() {
             let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId)); if(!prop) return navigate('screen-front-home');
             
-            // Auto SEO Keywords for this specific property
             let pLocation = prop.location ? prop.location.split(',').join(' ') : 'Indonesia';
             let dynamicKeywords = `jual ${prop.type}, properti ${pLocation}, ${prop.type} ${pLocation}, harga ${prop.type} ${pLocation}, beli rumah, ${prop.title}`;
             let rawPrice = parseInt(prop.price.replace(/[^0-9]/g, '')) || 0;
@@ -798,7 +833,6 @@
         }
 
         function shareProperty() {
-            // share with Permalink or ID parameter
             let prop = appDB.PROPERTIES.find(p => String(p.id) === String(selectedFrontPropertyId));
             let linkParam = (prop && prop.permalink) ? `?p=${prop.permalink}` : `?id=${selectedFrontPropertyId}`;
             let shareUrl = window.location.href.split('?')[0] + linkParam;
@@ -807,12 +841,10 @@
             else { navigator.clipboard.writeText(shareUrl); showModal("Link disalin!"); }
         }
 
-        // FRONTEND - SEARCH FORM
         function initFrontSearch() {
             let promoSelect = document.getElementById('front-lead-promo');
             if(promoSelect) { promoSelect.innerHTML = '<option value="-">Tanpa Promo Khusus</option>'; appDB.PROMOS.forEach(p => promoSelect.innerHTML += `<option value="${p.title}">${p.title} (${p.badge})</option>`); }
             
-            // Set current filters if exist
             if(currentSearchFilters.type) document.getElementById('front-lead-type').value = currentSearchFilters.type;
             if(currentSearchFilters.city) document.getElementById('front-lead-city').value = currentSearchFilters.city;
             updateDistrictDropdown('front-lead-city', 'front-lead-district');
@@ -828,26 +860,19 @@
             let city = document.getElementById('front-lead-city').value;
             let district = document.getElementById('front-lead-district').value;
             
-            // Jika form diisi nama & nomor HP, simpan sebagai Leads
             if(name && phone) {
-                appDB.VISITORS.unshift({ id: Date.now(), name: name, phone: phone, type: type || 'Semua Jenis', building: document.getElementById('front-lead-building').value || '-', location: district ? `${district}, ${city}` : city || 'Semua Lokasi', dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', promo: document.getElementById('front-lead-promo').value, status: 'Baru', date: new Date().toLocaleString('id-ID') });
+                appDB.VISITORS.unshift({ id: Date.now(), name: name, phone: phone, type: type || 'Semua Jenis', building: document.getElementById('front-lead-building').value || '-', location: district ? `${district}, ${city}` : city || 'Semua Lokasi', dp: document.getElementById('front-lead-dp').value == 0 ? 'Tanpa DP' : 'Rp. ' + document.getElementById('front-lead-dp').value + ' Juta', promo: document.getElementById('front-lead-promo').value, status: 'Baru', date: new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) });
                 saveDB(appDB); 
             }
 
-            // Set filter parameters
             currentSearchFilters.type = type;
             currentSearchFilters.city = city;
             currentSearchFilters.district = district;
             
-            showLoading(true, "Mencari properti...");
-            setTimeout(() => {
-                currentAllPropertiesPage = 1;
-                showLoading(false);
-                navigate('screen-front-all-properties');
-            }, 500);
+            currentAllPropertiesPage = 1;
+            navigate('screen-front-all-properties');
         }
 
-        // FRONTEND - AGENTS
         function renderFrontAgents() { 
             let c = document.getElementById('front-agents-container'); 
             c.innerHTML=''; 
@@ -856,12 +881,9 @@
                 if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
                 c.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center mb-3"><img src="${a.image}" onerror="this.src='https://placehold.co/100x100/eeeeee/999999?text=Agen'" class="w-14 h-14 rounded-full object-cover"/><div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${a.name}</h4><p class="text-[10px] text-gray-500">${a.role}</p></div><div class="flex gap-2"><a href="tel:${cleanPhone}" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition"><i data-lucide="phone" class="h-4 w-4"></i></a><a href="https://wa.me/${cleanPhone}?text=Halo,%20saya%20butuh%20bantuan%20mencari%20properti" target="_blank" class="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition"><i data-lucide="message-circle" class="h-4 w-4"></i></a></div></div>`; 
             }); 
-            lucide.createIcons(); 
+            if(typeof lucide !== 'undefined') lucide.createIcons(); 
         }
 
-        // ==========================================
-        // MAIN STARTUP INITIALIZATION
-        // ==========================================
         window.onload = async function() { 
             initTheme(); 
             await initDB(); 
@@ -876,7 +898,7 @@
                     selectedFrontPropertyId = foundProp.id;
                     navigate('screen-front-detail');
                 } else {
-                    navigate('screen-front-home'); // Fallback jika permalink tidak ditemukan
+                    navigate('screen-front-home'); 
                 }
             } else if (propId) {
                 selectedFrontPropertyId = propId;
@@ -884,8 +906,6 @@
             } else {
                 navigate('screen-front-home'); 
             }
-            
-            lucide.createIcons(); 
         };
     </script>
 </body>
