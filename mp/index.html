@@ -255,6 +255,23 @@
                         <input id="form-brochure" type="text" placeholder="https://..." class="w-full bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 text-sm md:text-base font-medium focus:border-blue-500 outline-none transition" />
                     </div>
 
+                    <div class="border-t border-gray-200 my-4 pt-5">
+                        <h3 class="text-sm md:text-base font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="globe" class="h-4 w-4 md:h-5 md:w-5 text-indigo-600"></i> Pengaturan SEO & Tautan Kustom</h3>
+                        <div class="flex flex-col gap-4 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-50">
+                            <div>
+                                <label class="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 block">Permalink / Tautan Kustom</label>
+                                <div class="flex items-center bg-white rounded-xl border border-gray-200 focus-within:border-blue-500 overflow-hidden text-sm md:text-base">
+                                    <span class="px-3 py-3 md:py-4 text-gray-400 bg-gray-50 border-r border-gray-200 text-xs md:text-sm whitespace-nowrap">/?p=</span>
+                                    <input id="form-permalink" type="text" placeholder="contoh-rumah-minimalis" class="w-full px-3 py-3 md:py-4 bg-transparent outline-none font-medium text-xs md:text-sm" />
+                                </div>
+                                <p class="text-[9px] md:text-[10px] text-gray-400 mt-1.5"><i data-lucide="info" class="inline h-3 w-3 mr-0.5"></i> Kosongkan agar otomatis terbuat dari Judul (Auto-generate).</p>
+                            </div>
+                            <div><label class="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 block">Custom Meta Title</label><input id="form-prop-seo-title" type="text" placeholder="Otomatis dari Judul" class="w-full bg-white p-3 md:p-4 rounded-xl border border-gray-200 text-sm md:text-base font-medium focus:border-blue-500 outline-none transition" /></div>
+                            <div><label class="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 block">Custom Meta Description</label><textarea id="form-prop-seo-desc" rows="2" placeholder="Otomatis mengambil dari deskripsi properti..." class="w-full bg-white p-3 md:p-4 rounded-xl border border-gray-200 text-sm md:text-base font-medium resize-none focus:border-blue-500 outline-none transition"></textarea></div>
+                            <div><label class="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 block">Custom Meta Keywords</label><input id="form-prop-seo-keywords" type="text" placeholder="Otomatis berdasar lokasi dan tipe" class="w-full bg-white p-3 md:p-4 rounded-xl border border-gray-200 text-sm md:text-base font-medium focus:border-blue-500 outline-none transition" /></div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 block">Daftar URL Gambar</label>
                         <div id="form-image-container" class="flex flex-col gap-3"></div>
@@ -970,7 +987,7 @@
         
         function openPropertyForm() { 
             editingPropertyId = null; document.getElementById('admin-form-title').innerText='Tambah Properti Baru'; 
-            ['form-title','form-price','form-dp','form-allincost','form-building-type','form-description', 'form-brochure'].forEach(id=>document.getElementById(id).value=''); 
+            ['form-title','form-price','form-dp','form-allincost','form-building-type','form-description', 'form-brochure', 'form-permalink', 'form-prop-seo-title', 'form-prop-seo-desc', 'form-prop-seo-keywords'].forEach(id=>document.getElementById(id).value=''); 
             document.getElementById('form-image-container').innerHTML=''; addImageInput(''); 
             populatePropertyTypesDropdowns();
             populateLocationDropdowns('form-city', 'form-district');
@@ -983,6 +1000,11 @@
             let p = appDB.PROPERTIES.find(x=>String(x.id)===String(id)); if(!p) return; 
             editingPropertyId = id; document.getElementById('admin-form-title').innerText='Edit Data Properti'; 
             document.getElementById('form-title').value = p.title; document.getElementById('form-price').value = p.price||''; document.getElementById('form-dp').value = p.dp||''; document.getElementById('form-allincost').value = p.allInCost||''; document.getElementById('form-building-type').value = p.buildingType||''; document.getElementById('form-description').value = p.description||''; document.getElementById('form-brochure').value = p.brochureUrl||''; 
+            
+            document.getElementById('form-permalink').value = p.permalink || '';
+            document.getElementById('form-prop-seo-title').value = p.seoTitle || '';
+            document.getElementById('form-prop-seo-desc').value = p.seoDesc || '';
+            document.getElementById('form-prop-seo-keywords').value = p.seoKeywords || '';
             
             document.getElementById('form-image-container').innerHTML = ''; 
             if(p.images && p.images.length > 0) p.images.forEach(img => addImageInput(img)); else addImageInput(p.image); 
@@ -1008,7 +1030,23 @@
             let imgs=[]; document.querySelectorAll('.form-image-input').forEach(i=>{if(i.value.trim()!=='')imgs.push(i.value.trim())}); if(imgs.length===0) imgs.push('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80');
             let c = document.getElementById('form-city').value; let d = document.getElementById('form-district').value;
             let pIds = []; document.querySelectorAll('.form-promo-cb:checked').forEach(cb => pIds.push(parseInt(cb.value)));
-            let data = { title:t, price:document.getElementById('form-price').value, dp:document.getElementById('form-dp').value, allInCost:document.getElementById('form-allincost').value, location: d?`${d}, ${c}`:c, type:document.getElementById('form-type').value, buildingType:document.getElementById('form-building-type').value, description:document.getElementById('form-description').value, brochureUrl: document.getElementById('form-brochure').value.trim(), images:imgs, image:imgs[0], promoIds: pIds };
+            
+            let permalinkInput = document.getElementById('form-permalink').value.trim();
+            if(!permalinkInput) {
+                permalinkInput = t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            } else {
+                permalinkInput = permalinkInput.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            }
+            let isUnique = false; let originalPermalink = permalinkInput; let counter = 1;
+            while(!isUnique) {
+                let exists = appDB.PROPERTIES.find(x => x.permalink === permalinkInput && String(x.id) !== String(editingPropertyId));
+                if(exists) { permalinkInput = originalPermalink + '-' + counter; counter++; } else { isUnique = true; }
+            }
+
+            let data = { 
+                title:t, price:document.getElementById('form-price').value, dp:document.getElementById('form-dp').value, allInCost:document.getElementById('form-allincost').value, location: d?`${d}, ${c}`:c, type:document.getElementById('form-type').value, buildingType:document.getElementById('form-building-type').value, description:document.getElementById('form-description').value, brochureUrl: document.getElementById('form-brochure').value.trim(), images:imgs, image:imgs[0], promoIds: pIds,
+                permalink: permalinkInput, seoTitle: document.getElementById('form-prop-seo-title').value.trim(), seoDesc: document.getElementById('form-prop-seo-desc').value.trim(), seoKeywords: document.getElementById('form-prop-seo-keywords').value.trim()
+            };
             if(editingPropertyId) { let i = appDB.PROPERTIES.findIndex(x=>String(x.id)===String(editingPropertyId)); if(i!==-1) appDB.PROPERTIES[i]={...appDB.PROPERTIES[i], ...data}; } else { data.id=Date.now(); appDB.PROPERTIES.unshift(data); } saveDB(appDB); navigate('screen-admin-listing');
         }
 
@@ -1156,25 +1194,37 @@
             let baseUrl = appDB.SEO?.frontendUrl || '';
             if (!baseUrl) {
                 baseUrl = window.location.href.split('/admin.html')[0];
-                if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            }
+            
+            // Hapus garis miring di akhir jika ada
+            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            
+            // WAJIB GSC: Pastikan ada protokol http:// atau https://
+            if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+                baseUrl = 'https://' + baseUrl;
             }
 
-            // Menyusun format standar XML Sitemap
+            // WAJIB GSC: Ambil tanggal hari ini dalam format YYYY-MM-DD
+            const todayDate = new Date().toISOString().split('T')[0];
+
+            // Menyusun format standar XML Sitemap yang diakui Google
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
             xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
             // Entri 1: Halaman Depan Frontend
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/index.html</loc>\n`;
+            xml += `    <lastmod>${todayDate}</lastmod>\n`;
             xml += '    <changefreq>daily</changefreq>\n';
             xml += '    <priority>1.0</priority>\n';
             xml += '  </url>\n';
 
             // Melakukan perulangan / mapping seluruh URL properti
             appDB.PROPERTIES.forEach(p => {
+                let linkPath = p.permalink ? `?p=${p.permalink}` : `?id=${p.id}`;
                 xml += '  <url>\n';
-                // URL langsung membuka halaman detail di frontend menggunakan parameter ?id=
-                xml += `    <loc>${baseUrl}/index.html?id=${p.id}</loc>\n`;
+                xml += `    <loc>${baseUrl}/index.html${linkPath}</loc>\n`;
+                xml += `    <lastmod>${todayDate}</lastmod>\n`;
                 xml += '    <changefreq>weekly</changefreq>\n';
                 xml += '    <priority>0.8</priority>\n';
                 xml += '  </url>\n';
@@ -1182,8 +1232,8 @@
 
             xml += '</urlset>';
 
-            // Memicu pengunduhan file
-            let blob = new Blob([xml], { type: 'text/xml' });
+            // Memicu pengunduhan file dengan encoding standar UTF-8 XML
+            let blob = new Blob([xml], { type: 'text/xml;charset=utf-8' });
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
@@ -1193,7 +1243,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showModal("sitemap.xml berhasil diunduh!\n\nSeluruh link properti telah diarahkan ke: " + baseUrl);
+            showModal("sitemap.xml berhasil diunduh dengan Standar Google!\n\nPastikan Anda mengunggah file ini ke cPanel/Server, lalu daftarkan URL sitemap-nya di Google Search Console.");
         }
 
         function backupDatabase() { let blob = new Blob([JSON.stringify(appDB)], { type: "application/json" }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `PropertiHub_Backup_DB.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
