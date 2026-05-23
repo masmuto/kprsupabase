@@ -1,0 +1,13 @@
+User-Agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+
+# Allow robots to be able to crawl the OG Image API route and all the subpaths
+Allow: /
+
+
+Disallow: /mp/index.html
+
+
+
+
+Sitemap: https://kpr.asia/sitemap.xml
