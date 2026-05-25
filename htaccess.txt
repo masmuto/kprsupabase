@@ -3,7 +3,7 @@
 # to http://localhost:3000/ when testing with a local prerender server
 
 <IfModule mod_headers.c>
-    RequestHeader set X-Prerender-Token "YOUR_TOKEN"
+    RequestHeader set X-Prerender-Token "LjtEHahrOfNY9fTiw0MD"
     RequestHeader set X-Prerender-Int-Type "Apache"
     RequestHeader set X-Prerender-Version "prerender-apache@2.0.0"
 </IfModule>
